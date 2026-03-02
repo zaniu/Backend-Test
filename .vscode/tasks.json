@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/Backend-Test/Backend-Test.sln",
+                "${workspaceFolder}/Backend-Test.sln",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -19,7 +19,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/Backend-Test/Backend-Test.sln",
+                "${workspaceFolder}/Backend-Test.sln",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -33,7 +33,7 @@
                 "watch",
                 "run",
                 "--project",
-                "${workspaceFolder}/Backend-Test/Backend-Test.csproj"
+                "${workspaceFolder}/Backend-Test.csproj"
             ],
             "problemMatcher": "$msCompile"
         }
