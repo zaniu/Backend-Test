@@ -1,40 +1,36 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using PersonApi.Models;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
-namespace Backend_Test.Controllers
+namespace BackendTest.Controllers;
+
+[Route("environment")]
+[ApiController]
+public class EnvironmentController : ControllerBase
 {
-    [Route("environment")]
-    [ApiController]
-    public class EnvironmentController : ControllerBase
+    [HttpGet("isproduction")]
+    public ActionResult<bool> GetIsProduction()
     {
-        [HttpGet("isproduction")]
-        public ActionResult<bool> GetIsProduction()
+        if (Debugger.IsAttached)
         {
-            if (Debugger.IsAttached)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+            return false;
         }
+        else
+        {
+            return true;
+        }
+    }
 
-        [HttpGet("apiversion")]
-        public ActionResult<string> GetApiVersion()
-        {
-            // TODO: Change version when adding or updating core functionality
-            return "Api Version is 2.3";
-        }
+    [HttpGet("apiversion")]
+    public ActionResult<string> GetApiVersion()
+    {
+        // TODO: Change version when adding or updating core functionality
+        return "Api Version is 2.3";
+    }
 
-        [HttpGet("uiversion")]
-        public ActionResult<string> GetUIVersion()
-        {
-            // TODO: Change version when adding or updating core functionality in the web interface
-            return "UI Version is 4.7";
-        }
+    [HttpGet("uiversion")]
+    public ActionResult<string> GetUIVersion()
+    {
+        // TODO: Change version when adding or updating core functionality in the web interface
+        return "UI Version is 4.7";
     }
 }

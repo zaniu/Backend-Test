@@ -1,133 +1,130 @@
 ﻿using Microsoft.VisualBasic;
-using System;
-using System.Collections.Generic;
 
-namespace PersonApi.Models
+namespace PersonApi.Models;
+
+public class ObjPerson
 {
-    public class ObjPerson
+    private double _id;
+    private string _firstname;
+    private string _lastname;
+    private decimal _yearOfBirth;
+
+    public double Id
     {
-        private double _id;
-        private string _firstname;
-        private string _lastname;
-        private decimal _yearOfBirth;
+        get { return _id; }
+        set { _id = value; }
+    }
 
-        public double Id
-        {
-            get { return _id; }
-            set { _id = value; }
-        }
+    public string Firstname
+    {
+        get { return _firstname; }
+        set { _firstname = value; }
+    }
 
-        public string Firstname
-        {
-            get { return _firstname; }
-            set { _firstname = value; }
-        }
+    public string Lastname
+    {
+        get { return _lastname; }
+        set { _lastname = value; }
+    }
 
-        public string Lastname
+    public decimal YearOfBirth
+    {
+        get { return _yearOfBirth; }
+        set
         {
-            get { return _lastname; }
-            set { _lastname = value; }
-        }
-
-        public decimal YearOfBirth
-        {
-            get { return _yearOfBirth; }
-            set
-            {
-                if (value > DateAndTime.Now.Year)
-                {
-                    throw new System.Exception("Customer can not be born after current year");
-                }
-                _yearOfBirth = value;
-            }
-        }
-
-        public ObjPerson() { }
-        public ObjPerson(double id, string firstname, string lastname, decimal yearOfBirth)
-        {
-            if(yearOfBirth > DateAndTime.Now.Year)
+            if (value > DateAndTime.Now.Year)
             {
                 throw new System.Exception("Customer can not be born after current year");
             }
-
-            _id = id;
-            _firstname = firstname;
-            _lastname = lastname;
-            _yearOfBirth = yearOfBirth;
+            _yearOfBirth = value;
         }
     }
 
-    public class ObjProduct
+    public ObjPerson() { }
+    public ObjPerson(double id, string firstname, string lastname, decimal yearOfBirth)
     {
-        private double _id;
-        private string _name;
-        private string _type;
-        private double _price;
-
-        public double Id
+        if(yearOfBirth > DateAndTime.Now.Year)
         {
-            get { return _id; }
-            set { _id = value; }
+            throw new System.Exception("Customer can not be born after current year");
         }
 
-        public string Name
-        {
-            get { return _name; }
-            set { _name = value; }
-        }
+        _id = id;
+        _firstname = firstname;
+        _lastname = lastname;
+        _yearOfBirth = yearOfBirth;
+    }
+}
 
-        public string Type
-        {
-            get { return _type; }
-            set { _type = value; }
-        }
+public class ObjProduct
+{
+    private double _id;
+    private string _name;
+    private string _type;
+    private double _price;
 
-        public double Price
-        {
-            get { return _price; }
-            set { _price = value; }
-        }
-
-        public ObjProduct() { }
-        public ObjProduct(double id, string name, string type)
-        {
-            _id = id;
-            _name = name;
-            _type = type;
-        }
+    public double Id
+    {
+        get { return _id; }
+        set { _id = value; }
     }
 
-    public class ObjPurchase
+    public string Name
     {
-        private double _id;
-        private double _customerId;
-        private List<double> _productId;
+        get { return _name; }
+        set { _name = value; }
+    }
 
-        public double Id
-        {
-            get { return _id; }
-            set { _id = value; }
-        }
+    public string Type
+    {
+        get { return _type; }
+        set { _type = value; }
+    }
 
-        public double CustomerId
-        {
-            get { return _customerId; }
-            set { _customerId = value; }
-        }
+    public double Price
+    {
+        get { return _price; }
+        set { _price = value; }
+    }
 
-        public List<double> ProductId
-        {
-            get { return _productId; }
-            set { _productId = value; }
-        }
+    public ObjProduct() { }
+    public ObjProduct(double id, string name, string type)
+    {
+        _id = id;
+        _name = name;
+        _type = type;
+    }
+}
 
-        public ObjPurchase() { }
+public class ObjPurchase
+{
+    private double _id;
+    private double _customerId;
+    private List<double> _productId;
 
-        public ObjPurchase(double id, double customerId, List<double> productId)
-        {
-            _id = id;
-            _customerId = customerId;
-            _productId = productId;
-        }
+    public double Id
+    {
+        get { return _id; }
+        set { _id = value; }
+    }
+
+    public double CustomerId
+    {
+        get { return _customerId; }
+        set { _customerId = value; }
+    }
+
+    public List<double> ProductId
+    {
+        get { return _productId; }
+        set { _productId = value; }
+    }
+
+    public ObjPurchase() { }
+
+    public ObjPurchase(double id, double customerId, List<double> productId)
+    {
+        _id = id;
+        _customerId = customerId;
+        _productId = productId;
     }
 }
