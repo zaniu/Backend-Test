@@ -6,7 +6,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/Backend-Test/bin/Debug/net5.0/Backend-Test.dll",
+            "program": "${workspaceFolder}/Backend-Test/bin/Debug/net10.0/Backend-Test.dll",
             "args": [],
             "cwd": "${workspaceFolder}/Backend-Test",
             "stopAtEntry": false,
