@@ -1,6 +1,4 @@
-﻿using Microsoft.VisualBasic;
-
-namespace PersonApi.Models;
+﻿namespace PersonApi.Models;
 
 public class ObjPerson
 {
@@ -32,9 +30,9 @@ public class ObjPerson
         get { return _yearOfBirth; }
         set
         {
-            if (value > DateAndTime.Now.Year)
+            if (value > DateTime.UtcNow.Year)
             {
-                throw new System.Exception("Customer can not be born after current year");
+                throw new Exception("Customer can not be born after current year");
             }
             _yearOfBirth = value;
         }
@@ -43,9 +41,9 @@ public class ObjPerson
     public ObjPerson() { }
     public ObjPerson(double id, string firstname, string lastname, decimal yearOfBirth)
     {
-        if(yearOfBirth > DateAndTime.Now.Year)
+        if(yearOfBirth > DateTime.UtcNow.Year)
         {
-            throw new System.Exception("Customer can not be born after current year");
+            throw new Exception("Customer can not be born after current year");
         }
 
         _id = id;

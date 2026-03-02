@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualBasic;
 using PersonApi.Models;
 
 namespace BackendTest.Controllers;
@@ -47,9 +46,9 @@ public class PersonController : ControllerBase
         {
             exceptions.IdDoesNotMatch();
         }
-        if (person.YearOfBirth > DateAndTime.Now.Year)
+        if (person.YearOfBirth > DateTime.UtcNow.Year)
         {
-            throw new System.Exception("Customer can not be born after current year");
+            throw new Exception("Customer can not be born after current year");
         }
 
         data.persons[id] = new ObjPerson(person.Id, person.Firstname, person.Lastname, person.YearOfBirth);
