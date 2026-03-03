@@ -1,4 +1,7 @@
-﻿using BackendTest.Model;
+﻿using BackendTest.Application.Requests.Purchase;
+using BackendTest.Application.Responses.Purchase;
+using BackendTest.Contracts;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BackendTest.Controllers;
@@ -7,66 +10,62 @@ namespace BackendTest.Controllers;
 [ApiController]
 public class PurchasesController : ControllerBase
 {
-    static Data data = new();
-    HelperUtils helper = new HelperUtils(data);
-    CommonExceptions exceptions = new CommonExceptions();
+    private readonly IMediator _mediator;
 
-    [HttpGet("purchases/getAll/")]
-    public ActionResult<IEnumerable<Purchase>> GetAll()
+    public PurchasesController(IMediator mediator)
     {
-        return data.purchases;
+        _mediator = mediator;
     }
 
-    [HttpGet("purchases/get/{id}")]
-    public ActionResult<Purchase> GetByCustomerId(int id)
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Response<GetAllPurchasesResponse>))]
+    public async Task<ActionResult<Response<GetAllPurchasesResponse>>> GetAll()
     {
-        if (data.purchases.First(s => s.CustomerId == id) == null)
-        {
-            exceptions.ItemNotExists();
-            // Exception doesn't return
-            return null;
-        }
-        else
-        {
-            return data.purchases.First(s => s.CustomerId == id);
-        }
+        var response = await _mediator.Send(new GetAllPurchasesRequest());
+        return Ok(new Response<GetAllPurchasesResponse>(response));
+    }
+
+    [HttpGet("customer/{customerId}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Response<GetPurchaseByCustomerIdResponse>))]
+    public async Task<ActionResult<Response<GetPurchaseByCustomerIdResponse>>> GetByCustomerId(int customerId)
+    {
+        var response = await _mediator.Send(new GetPurchaseByCustomerIdRequest(customerId));
+        return Ok(new Response<GetPurchaseByCustomerIdResponse>(response));
     }
 
     /// <summary>
     /// Generates a CSV report of a purchase, including a list of purchased items, their prices, the total expenditure, and customer information.
     /// </summary>
     /// <param name="id">The id of the Purchase order</param>
-    [HttpGet("purchases/get/{id}/report")]
+    [HttpGet("{id}/report")]
     public async Task<ActionResult<byte[]>> GetPurchaseReportById(int id)
     {
         throw new NotImplementedException("Please implement me!");
     }
 
-    [HttpPost("purchases/add/")]
-    public ActionResult Add(Purchase purchase)
+    [HttpPost]
+    [Consumes("application/json")]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Response<AddPurchaseResponse>))]
+    public async Task<ActionResult<Response<AddPurchaseResponse>>> Add([FromBody] AddPurchaseRequest request)
     {
-        data.purchases.Add(purchase);
-        return Accepted(data.products);
+        var response = await _mediator.Send(request);
+        return CreatedAtAction(nameof(GetByCustomerId), new { customerId = response.CustomerId }, new Response<AddPurchaseResponse>(response));
     }
 
-    [HttpDelete("purchases/delete/{id}")]
-    public ActionResult Delete(int id)
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult> Delete(int id)
     {
-        data.purchases.Remove(data.purchases.First(s => s.Id == id));
-        return Accepted(data.purchases);
+        await _mediator.Send(new DeletePurchaseRequest(id));
+        return NoContent();
     }
 
-    [HttpDelete("purchases/delete/{customerId}")]
-    public ActionResult DeleteFromCustomer(int id)
+    //TODO consider moving to person/{id}/purchases
+    [HttpDelete("customer/{customerId}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult> DeleteFromCustomer(int customerId)
     {
-        if (helper.PurchaseExists(id))
-        {
-            data.purchases.Remove(data.purchases.First(s => s.CustomerId == id));
-        }
-        else
-        {
-            exceptions.ItemNotExists();
-        }
-        return Accepted(data.purchases);
+        await _mediator.Send(new DeletePurchaseByCustomerRequest(customerId));
+        return NoContent();
     }
 }

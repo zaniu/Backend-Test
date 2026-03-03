@@ -1,5 +1,6 @@
 using System.Net;
-using BackendTest.Model;
+using BackendTest.Application.Responses.Purchase;
+using BackendTest.Contracts;
 using FluentAssertions;
 
 namespace BackendTest.Test.IntegrationTests;
@@ -14,8 +15,12 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
     public async Task GetAll_ReturnsOk()
     {
         using var client = CreateClient();
-        var response = await GetAsync(client, "/purchases/purchases/getAll/");
+        var response = await GetAsync(client, "/purchases");
         response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var wrapper = await ReadAsJsonAsync<Response<GetAllPurchasesResponse>>(response);
+        wrapper.Should().NotBeNull();
+        wrapper.Value.Should().NotBeNull().And.BeAssignableTo<List<GetPurchaseByCustomerIdResponse>>();
     }
 
     [Theory]
@@ -32,11 +37,12 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
         
         // Act:
         using var client = CreateClient();
-        var response = await GetAsync(client, $"/purchases/purchases/get/{customerId}");
+        var response = await GetAsync(client, $"/purchases/customer/{customerId}");
         
         // Assert:
         response.StatusCode.Should().Be(HttpStatusCode.OK, $"Should return purchase data for existing customer {customerId}");
-        var purchase = await ReadAsJsonAsync<Purchase>(response);
+        var wrapper = await ReadAsJsonAsync<Response<GetPurchaseByCustomerIdResponse>>(response);
+        var purchase = wrapper.Value;
         
         purchase.Should().NotBeNull("Purchase object should be deserialized");
         purchase!.CustomerId.Should().Be(customerId, $"Returned purchase should belong to customer {customerId}");
