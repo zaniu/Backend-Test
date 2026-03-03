@@ -1,8 +1,11 @@
 using System.Net;
+using BackendTest.Contracts;
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace BackendTest.Test.IntegrationTests;
+
+//Ideally these tests should inject values into the system configuration
+//instead of using values configured in the appsettings.json of tested project.
 
 public class EnvironmentControllerIntegrationTests : IntegrationTestBase
 {
@@ -10,11 +13,12 @@ public class EnvironmentControllerIntegrationTests : IntegrationTestBase
     public async Task GetIsProduction_ReturnsFalseWhenDebuggerAttached()
     {
         using var client = CreateClient();
-        var response = await GetAsync(client, "/environment/isproduction");
+        var response = await GetAsync(client, "/environment/production");
         
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-        var isProduction = await ReadAsJsonAsync<bool>(response);
-        isProduction.Should().BeTrue();
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await ReadAsJsonAsync<Response<bool>>(response);
+        content.Should().NotBeNull();
+        content.Value.Should().BeFalse();
     }
 
     [Fact]
@@ -23,11 +27,10 @@ public class EnvironmentControllerIntegrationTests : IntegrationTestBase
         using var client = CreateClient();
         var response = await GetAsync(client, "/environment/apiversion");
         
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-        var content = await ReadAsStringAsync(response);
-        content.Should()
-            .NotBeNullOrEmpty("API version should be returned")
-            .And.Contain("2.3", "API version should contain version number 2.3");
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await ReadAsJsonAsync<Response<string>>(response);
+        content.Should().NotBeNull();
+        content.Value.Should().Be("2.3");
     }
 
     [Fact]
@@ -37,9 +40,8 @@ public class EnvironmentControllerIntegrationTests : IntegrationTestBase
         var response = await GetAsync(client, "/environment/uiversion");
         
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-        var content = await ReadAsStringAsync(response);
-        content.Should()
-            .NotBeNullOrEmpty("UI version should be returned")
-            .And.Contain("4.7", "UI version should contain version number 4.7");
+        var content = await ReadAsJsonAsync<Response<string>>(response);
+        content.Should().NotBeNull();
+        content.Value.Should().Be("4.7");
     }
 }

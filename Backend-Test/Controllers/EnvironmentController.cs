@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
+﻿using BackendTest.Contracts;
+using BackendTest.Model;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace BackendTest.Controllers;
 
@@ -7,30 +9,31 @@ namespace BackendTest.Controllers;
 [ApiController]
 public class EnvironmentController : ControllerBase
 {
-    [HttpGet("isproduction")]
-    public ActionResult<bool> GetIsProduction()
+    private readonly EnvironmentConfiguration _config;
+
+    public EnvironmentController(IOptions<EnvironmentConfiguration> options)
     {
-        if (Debugger.IsAttached)
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
+        _config = options.Value;
+    }
+
+    [HttpGet("production")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Response<bool>))]
+    public ActionResult<Response<bool>> GetIsProduction() 
+    {
+        return Ok(new Response<bool>(_config.IsProduction));
     }
 
     [HttpGet("apiversion")]
-    public ActionResult<string> GetApiVersion()
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Response<string>))]
+    public ActionResult<Response<string>> GetApiVersion()
     {
-        // TODO: Change version when adding or updating core functionality
-        return "Api Version is 2.3";
+        return Ok(new Response<string>(_config.ApiVersion));
     }
 
     [HttpGet("uiversion")]
-    public ActionResult<string> GetUIVersion()
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Response<string>))]
+    public ActionResult<Response<string>> GetUIVersion()
     {
-        // TODO: Change version when adding or updating core functionality in the web interface
-        return "UI Version is 4.7";
+        return Ok(new Response<string>(_config.UiVersion));
     }
 }
