@@ -18,13 +18,13 @@ public class PersonController : ControllerBase
         _exceptions = exceptions;
     }
 
-    [HttpGet("persons")]
+    [HttpGet]
     public ActionResult<IEnumerable<Person>> GetAll()
     {
         return _data.persons;
     }
 
-    [HttpGet("persons/{id}")]
+    [HttpGet("{id}")]
     public ActionResult<Person> GetById(int id)
     {
         if(!_helper.PersonExists(id))
@@ -39,14 +39,14 @@ public class PersonController : ControllerBase
         }
     }
 
-    [HttpPost("persons")]
+    [HttpPost]
     public ActionResult Add(Person person)
     {
         _data.persons.Add(person);
         return Accepted(_data.persons);
     }
 
-    [HttpPut("persons/{id}")]
+    [HttpPut("{id}")]
     public ActionResult Update(int id, Person person)
     {
         if (id != person.Id)
@@ -63,7 +63,7 @@ public class PersonController : ControllerBase
         return Accepted(_data.persons);
     }
 
-    [HttpDelete("persons/{id}")]
+    [HttpDelete("{id}")]
     public ActionResult Delete(int id)
     {
         if (_helper.PersonExists(id))
