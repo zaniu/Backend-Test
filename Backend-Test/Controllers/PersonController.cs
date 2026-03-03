@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using PersonApi.Models;
+﻿using BackendTest.Application.Requests.Person;
+using BackendTest.Application.Responses.Person;
+using BackendTest.Contracts;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BackendTest.Controllers;
 
@@ -7,73 +10,53 @@ namespace BackendTest.Controllers;
 [Route("persons")]
 public class PersonController : ControllerBase
 {
-    private readonly Data _data;
-    private readonly HelperUtils _helper;
-    private readonly CommonExceptions _exceptions;
+    private readonly IMediator _mediator;
 
-    public PersonController(Data data, HelperUtils helper, CommonExceptions exceptions)
+    public PersonController(IMediator mediator)
     {
-        _data = data;
-        _helper = helper;
-        _exceptions = exceptions;
+        _mediator = mediator;
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<Person>> GetAll()
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Response<GetAllPersonsResponse>))]
+    public async Task<ActionResult<Response<GetAllPersonsResponse>>> GetAll()
     {
-        return _data.persons;
+        var response = await _mediator.Send(new GetAllPersonsRequest());
+        return Ok(new Response<GetAllPersonsResponse>(response));
     }
 
     [HttpGet("{id}")]
-    public ActionResult<Person> GetById(int id)
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Response<GetPersonByIdResponse>))]
+    public async Task<ActionResult<Response<GetPersonByIdResponse>>> GetById(int id)
     {
-        if(!_helper.PersonExists(id))
-        {
-            _exceptions.ItemNotExists();
-            // Exception has no return
-            return null;
-        }
-        else
-        {
-            return _data.persons.First(s => s.Id == id);
-        }
+        var response = await _mediator.Send(new GetPersonByIdRequest(id));
+        return Ok(new Response<GetPersonByIdResponse>(response));
     }
 
     [HttpPost]
-    public ActionResult Add(Person person)
+    [Consumes("application/json")]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Response<AddPersonResponse>))]
+    public async Task<ActionResult<Response<AddPersonResponse>>> Add([FromBody] AddPersonRequest request)
     {
-        _data.persons.Add(person);
-        return Accepted(_data.persons);
+        var response = await _mediator.Send(request);
+        return CreatedAtAction(nameof(GetById), new { id = response.Id }, new Response<AddPersonResponse>(response));
     }
 
     [HttpPut("{id}")]
-    public ActionResult Update(int id, Person person)
+    [Consumes("application/json")]
+    [ProducesResponseType(StatusCodes.Status202Accepted, Type = typeof(Response<UpdatePersonResponse>))]
+    public async Task<ActionResult<Response<UpdatePersonResponse>>> Update(int id, [FromBody] UpdatePersonRequest request)
     {
-        if (id != person.Id)
-        {
-            _exceptions.IdDoesNotMatch();
-        }
-        if (person.YearOfBirth > DateTime.UtcNow.Year)
-        {
-            throw new Exception("Customer can not be born after current year");
-        }
-
-        _data.persons[id] = new Person(person.Id, person.Firstname, person.Lastname, person.YearOfBirth);
-
-        return Accepted(_data.persons);
+        request.Id = id;
+        var response = await _mediator.Send(request);
+        return Accepted(new Response<UpdatePersonResponse>(response));
     }
 
     [HttpDelete("{id}")]
-    public ActionResult Delete(int id)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult> Delete(int id)
     {
-        if (_helper.PersonExists(id))
-        {
-            _data.persons.Remove(_data.persons.First(s => s.Id == id));
-        }
-        else
-        {
-            _exceptions.ItemNotExists();
-        }
-        return Accepted(_data.persons);
+        await _mediator.Send(new DeletePersonRequest(id));
+        return NoContent();
     }
 }

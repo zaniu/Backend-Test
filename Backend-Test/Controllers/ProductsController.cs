@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using PersonApi.Models;
+﻿using BackendTest.Model;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BackendTest.Controllers;
 

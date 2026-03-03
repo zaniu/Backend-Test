@@ -17,4 +17,12 @@ public class CommonExceptions
     {
         throw new Exception("Item does not exist");
     }
+
+    /// <summary>
+    /// If an item already exists
+    /// </summary>
+    public void ItemAlreadyExists()
+    {
+        throw new Exception("Item already exists");
+    }
 }

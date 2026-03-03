@@ -1,6 +1,8 @@
 using System.Net;
+using BackendTest.Application.Responses.Person;
+using BackendTest.Contracts;
+using BackendTest.Application.Requests.Person;
 using FluentAssertions;
-using PersonApi.Models;
 
 namespace BackendTest.Test.IntegrationTests;
 
@@ -17,6 +19,11 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
         using var client = CreateClient();
         var response = await GetAsync(client, "/persons");
         response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        // ensure the wrapper contains a list
+        var wrapper = await ReadAsJsonAsync<Response<GetAllPersonsResponse>>(response);
+        wrapper.Should().NotBeNull();
+        wrapper.Value.Should().NotBeNull().And.BeAssignableTo<List<GetPersonByIdResponse>>();
     }
 
     [Theory]
@@ -34,7 +41,8 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
         
         // Assert:
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var person = await ReadAsJsonAsync<Person>(response);
+        var wrapper = await ReadAsJsonAsync<Response<GetPersonByIdResponse>>(response);
+        var person = wrapper.Value;
         
         person.Should().NotBeNull("Person object should be deserialized");
         person!.Id.Should().Be(personId, $"Person ID should match {personId}");
@@ -42,27 +50,42 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
     }
 
     [Fact]
-    public async Task Add_WithValidPerson_ReturnsAccepted()
+    public async Task Add_WithValidPerson_ReturnsCreatedWithPerson()
     {
         using var client = CreateClient();
-        var person = new Person(1, "Jane", "Smith", 1985);
-        var response = await PostAsync(client, "/persons", person);
-        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+        var request = new AddPersonRequest(11, "Jane", "Smith", 1985);
+        var response = await PostAsync(client, "/persons", request);
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        var wrapper = await ReadAsJsonAsync<Response<AddPersonResponse>>(response);
+        var created = wrapper.Value;
+        created.Should().NotBeNull();
+        created!.Firstname.Should().Be("Jane");
+        created.Lastname.Should().Be("Smith");
+        created.Id.Should().Be(11);
+        created.YearOfBirth.Should().Be(1985);
     }
 
     [Fact]
-    public async Task Update_WithValidPerson_ReturnsAccepted()
+    public async Task Update_WithValidPerson_ReturnsAcceptedWithPerson()
     {
         // Arrange:
         // Data: Person with ID=1 should exist in persons collection
-        var person = new Person(1, "UpdatedFirstName", "UpdatedLastName", 1980);
+        var request = new UpdatePersonRequest(1, "UpdatedFirstName", "UpdatedLastName", 1980);
         
         // Act:
         using var client = CreateClient();
-        var response = await PutAsync(client, "/persons/1", person);
+        var response = await PutAsync(client, "/persons/1", request);
         
         // Assert:
         response.StatusCode.Should().Be(HttpStatusCode.Accepted, "Valid update should be accepted");
+
+        var wrapper = await ReadAsJsonAsync<Response<UpdatePersonResponse>>(response);
+        var updated = wrapper.Value;
+        updated.Should().NotBeNull();
+        updated!.Firstname.Should().Be("UpdatedFirstName");
+        updated.Lastname.Should().Be("UpdatedLastName");
+        updated.YearOfBirth.Should().Be(1980);
     }
 
     [Fact]
@@ -71,11 +94,11 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
         // Arrange:
         // Data: Person with ID=1 should exist in persons collection
         var futureYear = DateTime.UtcNow.Year + 1;
-        var person = new Person(1, "TestName", "TestLastName", futureYear);
+        var request = new UpdatePersonRequest(1, "TestName", "TestLastName", futureYear);
         
         // Act:
         using var client = CreateClient();
-        var response = await PutAsync(client, "/persons/1", person);
+        var response = await PutAsync(client, "/persons/1", request);
         
         // Assert:
         response.StatusCode.Should().Be(HttpStatusCode.InternalServerError, "Future year of birth should cause validation error");
@@ -84,7 +107,7 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
     [Theory]
     [InlineData(5)]
     [InlineData(10)]
-    public async Task Delete_WithExistingId_ReturnsAccepted(int personId)
+    public async Task Delete_WithExistingId_ReturnsNoContent(int personId)
     {
         // Arrange:
         // Data should be inserted into persons collection before test execution
@@ -95,6 +118,6 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
         var response = await DeleteAsync(client, $"/persons/{personId}");
         
         // Assert:
-        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
 }

@@ -1,17 +1,19 @@
-namespace PersonApi.Models;
+using System.Diagnostics.CodeAnalysis;
+
+namespace BackendTest.Model;
 
 public class Person
 {
-    public int Id { get; init; }
+    public required int Id { get; set; }
 
-    public string Firstname { get; init; }
+    public required string Firstname { get; set; }
 
-    public string Lastname { get; init; }
+    public required string Lastname { get; set; }
 
     public int YearOfBirth
     {
         get { return field; }
-        init
+        set
         {
             if (value > DateTime.UtcNow.Year)
             {
@@ -22,6 +24,8 @@ public class Person
     }
 
     public Person() { }
+    
+    [SetsRequiredMembers]
     public Person(int id, string firstname, string lastname, int yearOfBirth)
     {
         Id = id;

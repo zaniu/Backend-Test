@@ -1,6 +1,6 @@
 using System.Net;
+using BackendTest.Model;
 using FluentAssertions;
-using PersonApi.Models;
 
 namespace BackendTest.Test.IntegrationTests;
 

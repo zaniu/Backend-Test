@@ -1,4 +1,4 @@
-﻿using PersonApi.Models;
+﻿using BackendTest.Model;
 
 namespace BackendTest;
 

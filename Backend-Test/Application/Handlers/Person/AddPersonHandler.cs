@@ -1,0 +1,35 @@
+using BackendTest.Application.Requests.Person;
+using BackendTest.Application.Responses.Person;
+using MediatR;
+
+namespace BackendTest.Application.Handlers.Person;
+
+public class AddPersonHandler : IRequestHandler<AddPersonRequest, AddPersonResponse>
+{
+    private readonly Data _data;
+    private readonly CommonExceptions _exceptions;
+
+    public AddPersonHandler(Data data, CommonExceptions exceptions)
+    {
+        _data = data;
+        _exceptions = exceptions;
+    }
+
+    public Task<AddPersonResponse> Handle(AddPersonRequest request, CancellationToken cancellationToken)
+    {
+        if(_data.persons.Any(p => p.Id == request.Id))
+        {
+            _exceptions.ItemAlreadyExists();
+        }
+
+        var person = new Model.Person(
+            request.Id,
+            request.Firstname,
+            request.Lastname,
+            request.YearOfBirth
+        );
+
+        _data.persons.Add(person);
+        return Task.FromResult(new AddPersonResponse(person));
+    }
+}
