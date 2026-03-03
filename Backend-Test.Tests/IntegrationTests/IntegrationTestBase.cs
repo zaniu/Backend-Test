@@ -35,6 +35,17 @@ public abstract class IntegrationTestBase
         return await client.DeleteAsync(url);
     }
 
+    protected async Task<HttpResponseMessage> PutAsync(HttpClient client, string url, object body = null)
+    {
+        StringContent content = null;
+        if (body != null)
+        {
+            var json = JsonSerializer.Serialize(body);
+            content = new StringContent(json, Encoding.UTF8, "application/json");
+        }
+        return await client.PutAsync(url, content);
+    }
+
     protected static async Task<string> ReadAsStringAsync(HttpResponseMessage response)
     {
         return await response.Content.ReadAsStringAsync();

@@ -7,66 +7,73 @@ namespace BackendTest.Controllers;
 [Route("persons")]
 public class PersonController : ControllerBase
 {
-    static Data data = new();
-    HelperUtils helper = new HelperUtils(data);
-    CommonExceptions exceptions = new CommonExceptions();
+    private readonly Data _data;
+    private readonly HelperUtils _helper;
+    private readonly CommonExceptions _exceptions;
 
-    [HttpGet("persons/getAll/")]
-    public ActionResult<IEnumerable<ObjPerson>> GetAll()
+    public PersonController(Data data, HelperUtils helper, CommonExceptions exceptions)
     {
-        return data.persons;
+        _data = data;
+        _helper = helper;
+        _exceptions = exceptions;
     }
 
-    [HttpGet("persons/get/{id}")]
+    [HttpGet("persons")]
+    public ActionResult<IEnumerable<ObjPerson>> GetAll()
+    {
+        return _data.persons;
+    }
+
+    [HttpGet("persons/{id}")]
     public ActionResult<ObjPerson> GetById(int id)
     {
-        if(!helper.PersonExists(id))
+        if(!_helper.PersonExists(id))
         {
-            exceptions.ItemNotExists();
+            _exceptions.ItemNotExists();
             // Exception has no return
             return null;
         }
         else
         {
-            return data.persons.First(s => s.Id == id);
+            return _data.persons.First(s => s.Id == id);
         }
     }
 
-    [HttpPost("persons/add/")]
+    [HttpPost("persons")]
     public ActionResult Add(ObjPerson person)
     {
-        data.persons.Add(person);
-        return Accepted(data.persons);
+        _data.persons.Add(person);
+        return Accepted(_data.persons);
     }
 
-    [HttpPost("persons/update/{id}")]
+    [HttpPut("persons/{id}")]
     public ActionResult Update(int id, ObjPerson person)
     {
         if (id != person.Id)
         {
-            exceptions.IdDoesNotMatch();
+            _exceptions.IdDoesNotMatch();
         }
         if (person.YearOfBirth > DateTime.UtcNow.Year)
         {
             throw new Exception("Customer can not be born after current year");
         }
 
-        data.persons[id] = new ObjPerson(person.Id, person.Firstname, person.Lastname, person.YearOfBirth);
+        _data.persons[id] = new ObjPerson(person.Id, person.Firstname, person.Lastname, person.YearOfBirth);
 
-        return Accepted(data.persons);
+        return Accepted(_data.persons);
     }
 
-    [HttpDelete("persons/delete/{id}")]
+    [HttpDelete("persons/{id}")]
     public ActionResult Delete(int id)
     {
-        if (helper.PersonExists(id))
+        if (_helper.PersonExists(id))
         {
-            data.persons.Remove(data.persons.First(s => s.Id == id));
+            _data.persons.Remove(_data.persons.First(s => s.Id == id));
         }
         else
         {
-            exceptions.ItemNotExists();
+            _exceptions.ItemNotExists();
         }
-        return Accepted(data.persons);
+        return Accepted(_data.persons);
     }
 }

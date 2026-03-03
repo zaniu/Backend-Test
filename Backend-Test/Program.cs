@@ -1,3 +1,4 @@
+using BackendTest;
 using BackendTest.Model;
 using Microsoft.OpenApi.Models;
 
@@ -24,6 +25,11 @@ static WebApplication ConfigureServices(WebApplicationBuilder builder)
     {
         config.IsProduction = builder.Environment.IsProduction();
     });
+
+    // Register dependencies for DI
+    builder.Services.AddSingleton<Data>();
+    builder.Services.AddTransient<HelperUtils>();
+    builder.Services.AddTransient<CommonExceptions>();
 
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();

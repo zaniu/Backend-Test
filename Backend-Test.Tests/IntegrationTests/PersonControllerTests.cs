@@ -1,6 +1,5 @@
 using System.Net;
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc.Testing;
 using PersonApi.Models;
 using Xunit;
 
@@ -17,7 +16,7 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
     public async Task GetAll_ReturnsOk()
     {
         using var client = CreateClient();
-        var response = await GetAsync(client, "/persons/persons/getAll/");
+        var response = await GetAsync(client, "/persons/persons");
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
@@ -32,7 +31,7 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
         
         // Act:
         using var client = CreateClient();
-        var response = await GetAsync(client, $"/persons/persons/get/{personId}");
+        var response = await GetAsync(client, $"/persons/persons/{personId}");
         
         // Assert:
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -48,7 +47,7 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
     {
         using var client = CreateClient();
         var person = new ObjPerson(1, "Jane", "Smith", 1985);
-        var response = await PostAsync(client, "/persons/persons/add/", person);
+        var response = await PostAsync(client, "/persons/persons", person);
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
     }
 
@@ -61,7 +60,7 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
         
         // Act:
         using var client = CreateClient();
-        var response = await PostAsync(client, "/persons/persons/update/1", person);
+        var response = await PutAsync(client, "/persons/persons/1", person);
         
         // Assert:
         response.StatusCode.Should().Be(HttpStatusCode.Accepted, "Valid update should be accepted");
@@ -77,7 +76,7 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
         
         // Act:
         using var client = CreateClient();
-        var response = await PostAsync(client, "/persons/persons/update/1", person);
+        var response = await PutAsync(client, "/persons/persons/1", person);
         
         // Assert:
         response.StatusCode.Should().Be(HttpStatusCode.InternalServerError, "Future year of birth should cause validation error");
@@ -94,7 +93,7 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
         
         // Act:
         using var client = CreateClient();
-        var response = await DeleteAsync(client, $"/persons/persons/delete/{personId}");
+        var response = await DeleteAsync(client, $"/persons/persons/{personId}");
         
         // Assert:
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
