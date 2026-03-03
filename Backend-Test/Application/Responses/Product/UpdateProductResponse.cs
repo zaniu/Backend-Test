@@ -1,0 +1,21 @@
+namespace BackendTest.Application.Responses.Product;
+
+public class UpdateProductResponse
+{
+    public int Id { get; init; }
+    public string Name { get; init; }
+    public string Type { get; init; }
+    public decimal Price { get; init; }
+
+    public UpdateProductResponse()
+    {
+    }
+
+    public UpdateProductResponse(Model.Product product)
+    {
+        Id = product.Id;
+        Name = product.Name;
+        Type = product.Type;
+        Price = product.Price;
+    }
+}

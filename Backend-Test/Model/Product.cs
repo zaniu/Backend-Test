@@ -15,10 +15,11 @@ public class Product
     public Product() { }
     
     [SetsRequiredMembers]
-    public Product(int id, string name, string type)
+    public Product(int id, string name, string type, decimal price = 0)
     {
         Id = id;
         Name = name;
         Type = type;
+        Price = price;
     }
 }

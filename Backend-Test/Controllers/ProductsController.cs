@@ -1,4 +1,7 @@
-﻿using BackendTest.Model;
+﻿using BackendTest.Application.Requests.Product;
+using BackendTest.Application.Responses.Product;
+using BackendTest.Contracts;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BackendTest.Controllers;
@@ -7,62 +10,53 @@ namespace BackendTest.Controllers;
 [Route("products")]
 public class ProductsController : ControllerBase
 {
-    static Data data = new();
-    HelperUtils helper = new HelperUtils(data);
-    CommonExceptions exceptions = new CommonExceptions();
+    private readonly IMediator _mediator;
 
-    [HttpGet("products/getAll/")]
-    public ActionResult<IEnumerable<Product>> GetAll()
+    public ProductsController(IMediator mediator)
     {
-        return data.products;
+        _mediator = mediator;
     }
 
-    [HttpGet("products/get/{id}")]
-    public ActionResult<Product> GetById(int id)
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Response<GetAllProductsResponse>))]
+    public async Task<ActionResult<Response<GetAllProductsResponse>>> GetAll()
     {
-        if (!helper.ProductExists(id))
-        {
-            exceptions.ItemNotExists();
-            // Exception has no return
-            return null;
-        }
-        else
-        {
-            return data.products.First(s => s.Id == id);
-        }
+        var response = await _mediator.Send(new GetAllProductsRequest());
+        return Ok(new Response<GetAllProductsResponse>(response));
     }
 
-    [HttpPost("products/add/")]
-    public ActionResult Add(Product product)
+    [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Response<GetProductByIdResponse>))]
+    public async Task<ActionResult<Response<GetProductByIdResponse>>> GetById(int id)
     {
-        data.products.Add(product);
-        return Accepted(data.products);
+        var response = await _mediator.Send(new GetProductByIdRequest(id));
+        return Ok(new Response<GetProductByIdResponse>(response));
     }
 
-    [HttpPost("products/update/{id}")]
-    public ActionResult Update(int id, Product product)
+    [HttpPost]
+    [Consumes("application/json")]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Response<AddProductResponse>))]
+    public async Task<ActionResult<Response<AddProductResponse>>> Add([FromBody] AddProductRequest request)
     {
-        if (id != product.Id)
-        {
-            exceptions.IdDoesNotMatch();
-        }
-
-        data.products[id] = new Product(product.Id, product.Name, product.Type);
-
-        return Accepted(data.products);
+        var response = await _mediator.Send(request);
+        return CreatedAtAction(nameof(GetById), new { id = response.Id }, new Response<AddProductResponse>(response));
     }
 
-    [HttpDelete("products/delete/{id}")]
-    public ActionResult Delete(int id)
+    [HttpPut("{id}")]
+    [Consumes("application/json")]
+    [ProducesResponseType(StatusCodes.Status202Accepted, Type = typeof(Response<UpdateProductResponse>))]
+    public async Task<ActionResult<Response<UpdateProductResponse>>> Update(int id, [FromBody] UpdateProductRequest request)
     {
-        if (helper.ProductExists(id))
-        {
-            data.products.Remove(data.products.First(s => s.Id == id));
-        }
-        else
-        {
-            exceptions.ItemNotExists();
-        }
-        return Accepted(data.products);
+        request.Id = id;
+        var response = await _mediator.Send(request);
+        return Accepted(new Response<UpdateProductResponse>(response));
+    }
+
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult> Delete(int id)
+    {
+        await _mediator.Send(new DeleteProductRequest(id));
+        return NoContent();
     }
 }
