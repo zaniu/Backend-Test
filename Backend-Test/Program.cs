@@ -1,6 +1,9 @@
 using BackendTest;
 using BackendTest.Application;
+using BackendTest.Application.Validators;
 using BackendTest.Middleware;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,6 +36,8 @@ static WebApplication ConfigureServices(WebApplicationBuilder builder)
     builder.Services.AddBackendTestApplication();
 
     builder.Services.AddControllers();
+    builder.Services.AddFluentValidationAutoValidation();
+    builder.Services.AddValidatorsFromAssemblyContaining<ValidatorsAssemblyMarker>();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c =>
     {

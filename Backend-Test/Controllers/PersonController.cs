@@ -19,6 +19,7 @@ public class PersonController : ControllerBase
 
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Response<GetAllPersonsResponse>))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ValidationProblemDetails))]
     public async Task<ActionResult<Response<GetAllPersonsResponse>>> GetAll()
     {
         var response = await _mediator.Send(new GetAllPersonsRequest());
@@ -27,6 +28,8 @@ public class PersonController : ControllerBase
 
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Response<GetPersonByIdResponse>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ValidationProblemDetails))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ValidationProblemDetails))]
     public async Task<ActionResult<Response<GetPersonByIdResponse>>> GetById(int id)
     {
         var response = await _mediator.Send(new GetPersonByIdRequest(id));
@@ -36,6 +39,9 @@ public class PersonController : ControllerBase
     [HttpPost]
     [Consumes("application/json")]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Response<AddPersonResponse>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
+    [ProducesResponseType(StatusCodes.Status409Conflict, Type = typeof(ValidationProblemDetails))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ValidationProblemDetails))]
     public async Task<ActionResult<Response<AddPersonResponse>>> Add([FromBody] AddPersonRequest request)
     {
         var response = await _mediator.Send(request);
@@ -45,6 +51,9 @@ public class PersonController : ControllerBase
     [HttpPut("{id}")]
     [Consumes("application/json")]
     [ProducesResponseType(StatusCodes.Status202Accepted, Type = typeof(Response<UpdatePersonResponse>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ValidationProblemDetails))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ValidationProblemDetails))]
     public async Task<ActionResult<Response<UpdatePersonResponse>>> Update(int id, [FromBody] UpdatePersonRequest request)
     {
         request.Id = id;
@@ -54,6 +63,8 @@ public class PersonController : ControllerBase
 
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ValidationProblemDetails))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ValidationProblemDetails))]
     public async Task<ActionResult> Delete(int id)
     {
         await _mediator.Send(new DeletePersonRequest(id));

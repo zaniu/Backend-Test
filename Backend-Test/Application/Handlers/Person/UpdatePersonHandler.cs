@@ -18,12 +18,6 @@ public class UpdatePersonHandler : IRequestHandler<UpdatePersonRequest, UpdatePe
 
     public Task<UpdatePersonResponse> Handle(UpdatePersonRequest request, CancellationToken cancellationToken)
     {
-        //TODO fluent validation
-        if (request.YearOfBirth > DateTime.UtcNow.Year)
-        {
-            throw new DomainModelException("Customer can not be born after current year");
-        }
-
         if (!_helper.PersonExists(request.Id))
         {
             throw new NotFoundException();

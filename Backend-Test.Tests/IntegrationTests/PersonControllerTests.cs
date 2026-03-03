@@ -100,6 +100,20 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
     }
 
     [Fact]
+    public async Task Add_WithFutureYearOfBirth_ReturnsBadRequest()
+    {
+        // Arrange
+        using var client = CreateClient();
+        var request = new AddPersonRequest(1002, "Future", "Person", DateTime.UtcNow.Year + 1);
+
+        // Act
+        var response = await PostAsync(client, "/persons", request);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
     public async Task Update_WithValidPerson_ReturnsAcceptedWithPerson()
     {
         // Arrange:

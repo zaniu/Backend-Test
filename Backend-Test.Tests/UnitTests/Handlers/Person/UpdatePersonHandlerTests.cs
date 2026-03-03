@@ -11,11 +11,14 @@ public class UpdatePersonHandlerTests
     [Fact]
     public async Task Handle_WithExistingId_UpdatesValues()
     {
+        // Arrange
         var data = new Data();
         var handler = new UpdatePersonHandler(data, new HelperUtils(data));
 
+        // Act
         var response = await handler.Handle(new UpdatePersonRequest(2, "Updated", "Person", 1988), CancellationToken.None);
 
+        // Assert
         response.Id.Should().Be(2);
         response.Firstname.Should().Be("Updated");
         data.persons.Single(p => p.Id == 2).Lastname.Should().Be("Person");
@@ -24,13 +27,16 @@ public class UpdatePersonHandlerTests
     [Fact]
     public async Task Handle_WithFutureYear_ThrowsException()
     {
+        // Arrange
         var data = new Data();
         var handler = new UpdatePersonHandler(data, new HelperUtils(data));
 
+        // Act
         var act = async () => await handler.Handle(
             new UpdatePersonRequest(1, "Future", "Person", DateTime.UtcNow.Year + 1),
             CancellationToken.None);
 
+        // Assert
         await act.Should().ThrowAsync<DomainModelException>().WithMessage("Customer can not be born after current year");
     }
 }
