@@ -1,5 +1,4 @@
 ﻿using BackendTest.Contracts;
-using BackendTest.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -9,9 +8,9 @@ namespace BackendTest.Controllers;
 [ApiController]
 public class EnvironmentController : ControllerBase
 {
-    private readonly EnvironmentConfiguration _config;
+    private readonly Model.Environment _config;
 
-    public EnvironmentController(IOptions<EnvironmentConfiguration> options)
+    public EnvironmentController(IOptions<Model.Environment> options)
     {
         _config = options.Value;
     }

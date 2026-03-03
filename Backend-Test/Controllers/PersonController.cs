@@ -19,13 +19,13 @@ public class PersonController : ControllerBase
     }
 
     [HttpGet("persons")]
-    public ActionResult<IEnumerable<ObjPerson>> GetAll()
+    public ActionResult<IEnumerable<Person>> GetAll()
     {
         return _data.persons;
     }
 
     [HttpGet("persons/{id}")]
-    public ActionResult<ObjPerson> GetById(int id)
+    public ActionResult<Person> GetById(int id)
     {
         if(!_helper.PersonExists(id))
         {
@@ -40,14 +40,14 @@ public class PersonController : ControllerBase
     }
 
     [HttpPost("persons")]
-    public ActionResult Add(ObjPerson person)
+    public ActionResult Add(Person person)
     {
         _data.persons.Add(person);
         return Accepted(_data.persons);
     }
 
     [HttpPut("persons/{id}")]
-    public ActionResult Update(int id, ObjPerson person)
+    public ActionResult Update(int id, Person person)
     {
         if (id != person.Id)
         {
@@ -58,7 +58,7 @@ public class PersonController : ControllerBase
             throw new Exception("Customer can not be born after current year");
         }
 
-        _data.persons[id] = new ObjPerson(person.Id, person.Firstname, person.Lastname, person.YearOfBirth);
+        _data.persons[id] = new Person(person.Id, person.Firstname, person.Lastname, person.YearOfBirth);
 
         return Accepted(_data.persons);
     }

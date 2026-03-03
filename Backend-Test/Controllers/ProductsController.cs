@@ -12,13 +12,13 @@ public class ProductsController : ControllerBase
     CommonExceptions exceptions = new CommonExceptions();
 
     [HttpGet("products/getAll/")]
-    public ActionResult<IEnumerable<ObjProduct>> GetAll()
+    public ActionResult<IEnumerable<Product>> GetAll()
     {
         return data.products;
     }
 
     [HttpGet("products/get/{id}")]
-    public ActionResult<ObjProduct> GetById(int id)
+    public ActionResult<Product> GetById(int id)
     {
         if (!helper.ProductExists(id))
         {
@@ -33,21 +33,21 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPost("products/add/")]
-    public ActionResult Add(ObjProduct product)
+    public ActionResult Add(Product product)
     {
         data.products.Add(product);
         return Accepted(data.products);
     }
 
     [HttpPost("products/update/{id}")]
-    public ActionResult Update(int id, ObjProduct product)
+    public ActionResult Update(int id, Product product)
     {
         if (id != product.Id)
         {
             exceptions.IdDoesNotMatch();
         }
 
-        data.products[id] = new ObjProduct(product.Id, product.Name, product.Type);
+        data.products[id] = new Product(product.Id, product.Name, product.Type);
 
         return Accepted(data.products);
     }

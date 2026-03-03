@@ -12,13 +12,13 @@ public class PurchasesController : ControllerBase
     CommonExceptions exceptions = new CommonExceptions();
 
     [HttpGet("purchases/getAll/")]
-    public ActionResult<IEnumerable<ObjPurchase>> GetAll()
+    public ActionResult<IEnumerable<Purchase>> GetAll()
     {
         return data.purchases;
     }
 
     [HttpGet("purchases/get/{id}")]
-    public ActionResult<ObjPurchase> GetByCustomerId(int id)
+    public ActionResult<Purchase> GetByCustomerId(int id)
     {
         if (data.purchases.First(s => s.CustomerId == id) == null)
         {
@@ -43,7 +43,7 @@ public class PurchasesController : ControllerBase
     }
 
     [HttpPost("purchases/add/")]
-    public ActionResult Add(ObjPurchase purchase)
+    public ActionResult Add(Purchase purchase)
     {
         data.purchases.Add(purchase);
         return Accepted(data.products);

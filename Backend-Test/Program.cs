@@ -1,5 +1,4 @@
 using BackendTest;
-using BackendTest.Model;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,9 +9,9 @@ app.Run();
 static WebApplication ConfigureServices(WebApplicationBuilder builder)
 {
     var envSection = builder.Configuration.GetSection("EnvironmentConfiguration");
-    var envConfig = envSection.Get<EnvironmentConfiguration>() ?? new EnvironmentConfiguration();
+    var envConfig = envSection.Get<BackendTest.Model.Environment>() ?? new BackendTest.Model.Environment();
     envConfig.IsProduction = builder.Environment.IsProduction();
-    builder.Services.Configure<EnvironmentConfiguration>(config =>
+    builder.Services.Configure((BackendTest.Model.Environment config) =>
     {
         config.ApiVersion = envConfig.ApiVersion;
         config.UiVersion = envConfig.UiVersion;
@@ -20,8 +19,8 @@ static WebApplication ConfigureServices(WebApplicationBuilder builder)
     });
 
 
-    builder.Services.Configure<EnvironmentConfiguration>(builder.Configuration.GetSection("EnvironmentConfiguration"));
-    builder.Services.PostConfigure<EnvironmentConfiguration>(config =>
+    builder.Services.Configure<BackendTest.Model.Environment>(builder.Configuration.GetSection("EnvironmentConfiguration"));
+    builder.Services.PostConfigure((BackendTest.Model.Environment config) =>
     {
         config.IsProduction = builder.Environment.IsProduction();
     });

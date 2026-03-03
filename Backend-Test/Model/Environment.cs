@@ -1,6 +1,6 @@
 namespace BackendTest.Model;
 
-public class EnvironmentConfiguration
+public class Environment
 {
     public string ApiVersion { get; set; } = string.Empty;
     public string UiVersion { get; set; } = string.Empty;

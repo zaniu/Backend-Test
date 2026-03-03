@@ -1,8 +1,6 @@
 using System.Net;
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc.Testing;
 using PersonApi.Models;
-using Xunit;
 
 namespace BackendTest.Test.IntegrationTests;
 
@@ -38,11 +36,11 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
         
         // Assert:
         response.StatusCode.Should().Be(HttpStatusCode.OK, $"Should return purchase data for existing customer {customerId}");
-        var purchase = await ReadAsJsonAsync<ObjPurchase>(response);
+        var purchase = await ReadAsJsonAsync<Purchase>(response);
         
         purchase.Should().NotBeNull("Purchase object should be deserialized");
         purchase!.CustomerId.Should().Be(customerId, $"Returned purchase should belong to customer {customerId}");
-        purchase.ProductId.Should().NotBeNull("Purchase should have product IDs");
-        purchase.ProductId!.Should().NotBeEmpty("Purchase should contain at least one product");
+        purchase.ProductsIds.Should().NotBeNull("Purchase should have product IDs");
+        purchase.ProductsIds!.Should().NotBeEmpty("Purchase should contain at least one product");
     }
 }

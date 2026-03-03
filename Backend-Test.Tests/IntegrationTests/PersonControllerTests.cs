@@ -1,7 +1,6 @@
 using System.Net;
 using FluentAssertions;
 using PersonApi.Models;
-using Xunit;
 
 namespace BackendTest.Test.IntegrationTests;
 
@@ -35,7 +34,7 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
         
         // Assert:
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var person = await ReadAsJsonAsync<ObjPerson>(response);
+        var person = await ReadAsJsonAsync<Person>(response);
         
         person.Should().NotBeNull("Person object should be deserialized");
         person!.Id.Should().Be(personId, $"Person ID should match {personId}");
@@ -46,7 +45,7 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
     public async Task Add_WithValidPerson_ReturnsAccepted()
     {
         using var client = CreateClient();
-        var person = new ObjPerson(1, "Jane", "Smith", 1985);
+        var person = new Person(1, "Jane", "Smith", 1985);
         var response = await PostAsync(client, "/persons/persons", person);
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
     }
@@ -56,7 +55,7 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
     {
         // Arrange:
         // Data: Person with ID=1 should exist in persons collection
-        var person = new ObjPerson(1, "UpdatedFirstName", "UpdatedLastName", 1980);
+        var person = new Person(1, "UpdatedFirstName", "UpdatedLastName", 1980);
         
         // Act:
         using var client = CreateClient();
@@ -72,7 +71,7 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
         // Arrange:
         // Data: Person with ID=1 should exist in persons collection
         var futureYear = DateTime.UtcNow.Year + 1;
-        var person = new ObjPerson(1, "TestName", "TestLastName", futureYear);
+        var person = new Person(1, "TestName", "TestLastName", futureYear);
         
         // Act:
         using var client = CreateClient();

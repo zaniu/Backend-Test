@@ -1,8 +1,6 @@
 using System.Net;
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc.Testing;
 using PersonApi.Models;
-using Xunit;
 
 namespace BackendTest.Test.IntegrationTests;
 
@@ -33,7 +31,7 @@ public class ProductsControllerIntegrationTests : IntegrationTestBase
         
         // Assert:
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var product = await ReadAsJsonAsync<ObjProduct>(response);
+        var product = await ReadAsJsonAsync<Product>(response);
         
         product.Should().NotBeNull("Product object should be deserialized");
         product!.Id.Should().Be(productId, $"Product ID should match {productId}");
@@ -44,7 +42,7 @@ public class ProductsControllerIntegrationTests : IntegrationTestBase
     public async Task Add_WithValidProduct_ReturnsAccepted()
     {
         using var client = CreateClient();
-        var product = new ObjProduct(99, "New Product", "Home");
+        var product = new Product(99, "New Product", "Home");
         var response = await PostAsync(client, "/products/products/add/", product);
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
     }
