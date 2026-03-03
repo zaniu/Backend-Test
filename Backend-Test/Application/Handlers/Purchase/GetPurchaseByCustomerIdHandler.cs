@@ -1,5 +1,6 @@
 using BackendTest.Application.Requests.Purchase;
 using BackendTest.Application.Responses.Purchase;
+using BackendTest.Exceptions;
 using MediatR;
 
 namespace BackendTest.Application.Handlers.Purchase;
@@ -7,12 +8,10 @@ namespace BackendTest.Application.Handlers.Purchase;
 public class GetPurchaseByCustomerIdHandler : IRequestHandler<GetPurchaseByCustomerIdRequest, GetPurchaseByCustomerIdResponse>
 {
     private readonly Data _data;
-    private readonly CommonExceptions _exceptions;
 
-    public GetPurchaseByCustomerIdHandler(Data data, CommonExceptions exceptions)
+    public GetPurchaseByCustomerIdHandler(Data data)
     {
         _data = data;
-        _exceptions = exceptions;
     }
 
     public Task<GetPurchaseByCustomerIdResponse> Handle(GetPurchaseByCustomerIdRequest request, CancellationToken cancellationToken)
@@ -21,7 +20,7 @@ public class GetPurchaseByCustomerIdHandler : IRequestHandler<GetPurchaseByCusto
 
         if (purchase == null)
         {
-            _exceptions.ItemNotExists();
+            throw new NotFoundException();
         }
 
         return Task.FromResult(new GetPurchaseByCustomerIdResponse(purchase!));

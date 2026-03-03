@@ -1,6 +1,6 @@
-using BackendTest;
 using BackendTest.Application.Handlers.Purchase;
 using BackendTest.Application.Requests.Purchase;
+using BackendTest.Exceptions;
 using FluentAssertions;
 
 namespace BackendTest.Test.UnitTests.Handlers.Purchase;
@@ -11,7 +11,7 @@ public class AddPurchaseHandlerTests
     public async Task Handle_WithNewId_AddsPurchase()
     {
         var data = new Data();
-        var handler = new AddPurchaseHandler(data, new CommonExceptions());
+        var handler = new AddPurchaseHandler(data);
 
         var response = await handler.Handle(new AddPurchaseRequest(999, 500, [1, 2]), CancellationToken.None);
 
@@ -23,10 +23,10 @@ public class AddPurchaseHandlerTests
     public async Task Handle_WithDuplicateId_ThrowsException()
     {
         var data = new Data();
-        var handler = new AddPurchaseHandler(data, new CommonExceptions());
+        var handler = new AddPurchaseHandler(data);
 
         var act = async () => await handler.Handle(new AddPurchaseRequest(1, 1, [1]), CancellationToken.None);
 
-        await act.Should().ThrowAsync<Exception>().WithMessage("Item already exists");
+        await act.Should().ThrowAsync<DuplicateException>().WithMessage("Item already exists");
     }
 }

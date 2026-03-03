@@ -1,4 +1,5 @@
 using BackendTest.Application.Requests.Person;
+using BackendTest.Exceptions;
 using MediatR;
 
 namespace BackendTest.Application.Handlers.Person;
@@ -7,13 +8,11 @@ public class DeletePersonHandler : IRequestHandler<DeletePersonRequest, Unit>
 {
     private readonly Data _data;
     private readonly HelperUtils _helper;
-    private readonly CommonExceptions _exceptions;
 
-    public DeletePersonHandler(Data data, HelperUtils helper, CommonExceptions exceptions)
+    public DeletePersonHandler(Data data, HelperUtils helper)
     {
         _data = data;
         _helper = helper;
-        _exceptions = exceptions;
     }
 
     public Task<Unit> Handle(DeletePersonRequest request, CancellationToken cancellationToken)
@@ -24,7 +23,7 @@ public class DeletePersonHandler : IRequestHandler<DeletePersonRequest, Unit>
         }
         else
         {
-            _exceptions.ItemNotExists();
+            throw new NotFoundException();
         }
 
         return Unit.Task;

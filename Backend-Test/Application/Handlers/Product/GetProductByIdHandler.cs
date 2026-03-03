@@ -1,5 +1,6 @@
 using BackendTest.Application.Requests.Product;
 using BackendTest.Application.Responses.Product;
+using BackendTest.Exceptions;
 using MediatR;
 
 namespace BackendTest.Application.Handlers.Product;
@@ -8,21 +9,18 @@ public class GetProductByIdHandler : IRequestHandler<GetProductByIdRequest, GetP
 {
     private readonly Data _data;
     private readonly HelperUtils _helper;
-    private readonly CommonExceptions _exceptions;
 
-    public GetProductByIdHandler(Data data, HelperUtils helper, CommonExceptions exceptions)
+    public GetProductByIdHandler(Data data, HelperUtils helper)
     {
         _data = data;
         _helper = helper;
-        _exceptions = exceptions;
     }
 
     public Task<GetProductByIdResponse> Handle(GetProductByIdRequest request, CancellationToken cancellationToken)
     {
         if (!_helper.ProductExists(request.Id))
         {
-            _exceptions.ItemNotExists();
-            return Task.FromResult<GetProductByIdResponse>(null);
+            throw new NotFoundException();
         }
 
         var product = _data.products.First(s => s.Id == request.Id);

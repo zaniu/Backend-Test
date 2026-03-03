@@ -1,5 +1,6 @@
 using BackendTest.Application.Requests.Product;
 using BackendTest.Application.Responses.Product;
+using BackendTest.Exceptions;
 using MediatR;
 
 namespace BackendTest.Application.Handlers.Product;
@@ -7,19 +8,17 @@ namespace BackendTest.Application.Handlers.Product;
 public class AddProductHandler : IRequestHandler<AddProductRequest, AddProductResponse>
 {
     private readonly Data _data;
-    private readonly CommonExceptions _exceptions;
 
-    public AddProductHandler(Data data, CommonExceptions exceptions)
+    public AddProductHandler(Data data)
     {
         _data = data;
-        _exceptions = exceptions;
     }
 
     public Task<AddProductResponse> Handle(AddProductRequest request, CancellationToken cancellationToken)
     {
         if (_data.products.Any(p => p.Id == request.Id))
         {
-            _exceptions.ItemAlreadyExists();
+            throw new DuplicateException();
         }
 
         var product = new Model.Product(

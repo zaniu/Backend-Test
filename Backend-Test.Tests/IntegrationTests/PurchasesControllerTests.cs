@@ -60,7 +60,7 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
     }
 
     [Fact]
-    public async Task GetByCustomerId_WithNonExistingCustomerId_ReturnsInternalServerError()
+    public async Task GetByCustomerId_WithNonExistingCustomerId_ReturnsNotFound()
     {
         // Arrange
         using var client = CreateClient();
@@ -69,7 +69,7 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
         var response = await GetAsync(client, "/purchases/customer/999");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
@@ -99,7 +99,7 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
     }
 
     [Fact]
-    public async Task Add_WithDuplicateId_ReturnsInternalServerError()
+    public async Task Add_WithDuplicateId_ReturnsConflict()
     {
         // Arrange
         using var client = CreateClient();
@@ -109,7 +109,7 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
         var response = await PostAsync(client, "/purchases", request);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }
 
     [Fact]
@@ -126,7 +126,7 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
     }
 
     [Fact]
-    public async Task Delete_WithNonExistingId_ReturnsInternalServerError()
+    public async Task Delete_WithNonExistingId_ReturnsNotFound()
     {
         // Arrange
         using var client = CreateClient();
@@ -135,7 +135,7 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
         var response = await DeleteAsync(client, "/purchases/999");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
@@ -153,11 +153,11 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         var getResponse = await GetAsync(client, "/purchases/customer/998");
-        getResponse.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
-    public async Task DeleteFromCustomer_WithNonExistingCustomerId_ReturnsInternalServerError()
+    public async Task DeleteFromCustomer_WithNonExistingCustomerId_ReturnsNotFound()
     {
         // Arrange
         using var client = CreateClient();
@@ -166,7 +166,7 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
         var response = await DeleteAsync(client, "/purchases/customer/999");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]

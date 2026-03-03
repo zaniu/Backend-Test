@@ -1,5 +1,6 @@
 using BackendTest;
 using BackendTest.Application;
+using BackendTest.Middleware;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,7 +29,6 @@ static WebApplication ConfigureServices(WebApplicationBuilder builder)
 
     builder.Services.AddSingleton<Data>();
     builder.Services.AddTransient<HelperUtils>();
-    builder.Services.AddTransient<CommonExceptions>();
 
     builder.Services.AddBackendTestApplication();
 
@@ -49,9 +49,10 @@ static WebApplication ConfigureServices(WebApplicationBuilder builder)
 
 static void Configure(WebApplication app)
 {
+    app.UseMiddleware<ExceptionHandlingMiddleware>();
+
     if (app.Environment.IsDevelopment())
     {
-        app.UseDeveloperExceptionPage();
         app.UseSwagger();
         app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BackendTest v1"));
     }

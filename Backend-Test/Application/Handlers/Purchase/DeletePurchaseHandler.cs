@@ -1,4 +1,5 @@
 using BackendTest.Application.Requests.Purchase;
+using BackendTest.Exceptions;
 using MediatR;
 
 namespace BackendTest.Application.Handlers.Purchase;
@@ -7,20 +8,18 @@ public class DeletePurchaseHandler : IRequestHandler<DeletePurchaseRequest, Unit
 {
     private readonly Data _data;
     private readonly HelperUtils _helper;
-    private readonly CommonExceptions _exceptions;
 
-    public DeletePurchaseHandler(Data data, HelperUtils helper, CommonExceptions exceptions)
+    public DeletePurchaseHandler(Data data, HelperUtils helper)
     {
         _data = data;
         _helper = helper;
-        _exceptions = exceptions;
     }
 
     public Task<Unit> Handle(DeletePurchaseRequest request, CancellationToken cancellationToken)
     {
         if (!_helper.PurchaseExists(request.Id))
         {
-            _exceptions.ItemNotExists();
+            throw new NotFoundException();
         }
 
         var purchase = _data.purchases.First(s => s.Id == request.Id);

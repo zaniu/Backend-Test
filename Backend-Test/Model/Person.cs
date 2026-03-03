@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using BackendTest.Exceptions;
 
 namespace BackendTest.Model;
 
@@ -17,7 +18,7 @@ public class Person
         {
             if (value > DateTime.UtcNow.Year)
             {
-                throw new Exception("Customer can not be born after current year");
+                throw new DomainModelException("Customer can not be born after current year");
             }
             field = value;
         }

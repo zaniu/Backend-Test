@@ -85,7 +85,7 @@ public class ProductsControllerIntegrationTests : IntegrationTestBase
     }
 
     [Fact]
-    public async Task Add_WithDuplicateId_ReturnsInternalServerError()
+    public async Task Add_WithDuplicateId_ReturnsConflict()
     {
         // Arrange
         using var client = CreateClient();
@@ -95,7 +95,7 @@ public class ProductsControllerIntegrationTests : IntegrationTestBase
         var response = await PostAsync(client, "/products", request);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }
 
     [Fact]
@@ -120,7 +120,7 @@ public class ProductsControllerIntegrationTests : IntegrationTestBase
     }
 
     [Fact]
-    public async Task Update_WithNonExistingProduct_ReturnsInternalServerError()
+    public async Task Update_WithNonExistingProduct_ReturnsNotFound()
     {
         // Arrange
         using var client = CreateClient();
@@ -130,7 +130,7 @@ public class ProductsControllerIntegrationTests : IntegrationTestBase
         var response = await PutAsync(client, "/products/999", request);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Theory]
@@ -146,11 +146,11 @@ public class ProductsControllerIntegrationTests : IntegrationTestBase
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         var getResponse = await GetAsync(client, $"/products/{productId}");
-        getResponse.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
-    public async Task GetById_WithNonExistingId_ReturnsInternalServerError()
+    public async Task GetById_WithNonExistingId_ReturnsNotFound()
     {
         // Arrange
         using var client = CreateClient();
@@ -159,11 +159,11 @@ public class ProductsControllerIntegrationTests : IntegrationTestBase
         var response = await GetAsync(client, "/products/999");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
-    public async Task Delete_WithNonExistingId_ReturnsInternalServerError()
+    public async Task Delete_WithNonExistingId_ReturnsNotFound()
     {
         // Arrange
         using var client = CreateClient();
@@ -172,6 +172,6 @@ public class ProductsControllerIntegrationTests : IntegrationTestBase
         var response = await DeleteAsync(client, "/products/999");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 }

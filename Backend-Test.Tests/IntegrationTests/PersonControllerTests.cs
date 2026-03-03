@@ -86,7 +86,7 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
     }
 
     [Fact]
-    public async Task Add_WithDuplicateId_ReturnsInternalServerError()
+    public async Task Add_WithDuplicateId_ReturnsConflict()
     {
         // Arrange
         using var client = CreateClient();
@@ -96,7 +96,7 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
         var response = await PostAsync(client, "/persons", request);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }
 
     [Fact]
@@ -122,7 +122,7 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
     }
 
     [Fact]
-    public async Task Update_WithFutureYearOfBirth_ThrowsException()
+    public async Task Update_WithFutureYearOfBirth_ReturnsBadRequest()
     {
         // Arrange:
         // Data: Person with ID=1 should exist in persons collection
@@ -134,11 +134,11 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
         var response = await PutAsync(client, "/persons/1", request);
         
         // Assert:
-        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError, "Future year of birth should cause validation error");
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest, "Future year of birth should cause validation error");
     }
 
     [Fact]
-    public async Task Update_WithNonExistingPerson_ReturnsInternalServerError()
+    public async Task Update_WithNonExistingPerson_ReturnsNotFound()
     {
         // Arrange
         var request = new UpdatePersonRequest(999, "Unknown", "Person", 1980);
@@ -148,7 +148,7 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
         var response = await PutAsync(client, "/persons/999", request);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Theory]
@@ -168,11 +168,11 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         var getResponse = await GetAsync(client, $"/persons/{personId}");
-        getResponse.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
-    public async Task GetById_WithNonExistingId_ReturnsInternalServerError()
+    public async Task GetById_WithNonExistingId_ReturnsNotFound()
     {
         // Arrange
         using var client = CreateClient();
@@ -181,11 +181,11 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
         var response = await GetAsync(client, "/persons/999");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
-    public async Task Delete_WithNonExistingId_ReturnsInternalServerError()
+    public async Task Delete_WithNonExistingId_ReturnsNotFound()
     {
         // Arrange
         using var client = CreateClient();
@@ -194,6 +194,6 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
         var response = await DeleteAsync(client, "/persons/999");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 }

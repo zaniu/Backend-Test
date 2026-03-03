@@ -1,5 +1,6 @@
 using BackendTest.Application.Requests.Product;
 using BackendTest.Application.Responses.Product;
+using BackendTest.Exceptions;
 using MediatR;
 
 namespace BackendTest.Application.Handlers.Product;
@@ -7,13 +8,11 @@ namespace BackendTest.Application.Handlers.Product;
 public class UpdateProductHandler : IRequestHandler<UpdateProductRequest, UpdateProductResponse>
 {
     private readonly Data _data;
-    private readonly CommonExceptions _exceptions;
     private readonly HelperUtils _helper;
 
-    public UpdateProductHandler(Data data, CommonExceptions exceptions, HelperUtils helper)
+    public UpdateProductHandler(Data data, HelperUtils helper)
     {
         _data = data;
-        _exceptions = exceptions;
         _helper = helper;
     }
 
@@ -21,7 +20,7 @@ public class UpdateProductHandler : IRequestHandler<UpdateProductRequest, Update
     {
         if (!_helper.ProductExists(request.Id))
         {
-            _exceptions.ItemNotExists();
+            throw new NotFoundException();
         }
 
         var existingProductIndex = _data.products.FindIndex(p => p.Id == request.Id);
@@ -31,7 +30,7 @@ public class UpdateProductHandler : IRequestHandler<UpdateProductRequest, Update
         }
         else
         {
-            _exceptions.ItemNotExists();
+            throw new NotFoundException();
         }
 
         return Task.FromResult(new UpdateProductResponse(_data.products[existingProductIndex]));

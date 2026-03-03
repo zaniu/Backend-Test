@@ -1,4 +1,5 @@
 using BackendTest.Application.Requests.Product;
+using BackendTest.Exceptions;
 using MediatR;
 
 namespace BackendTest.Application.Handlers.Product;
@@ -7,13 +8,11 @@ public class DeleteProductHandler : IRequestHandler<DeleteProductRequest, Unit>
 {
     private readonly Data _data;
     private readonly HelperUtils _helper;
-    private readonly CommonExceptions _exceptions;
 
-    public DeleteProductHandler(Data data, HelperUtils helper, CommonExceptions exceptions)
+    public DeleteProductHandler(Data data, HelperUtils helper)
     {
         _data = data;
         _helper = helper;
-        _exceptions = exceptions;
     }
 
     public Task<Unit> Handle(DeleteProductRequest request, CancellationToken cancellationToken)
@@ -24,7 +23,7 @@ public class DeleteProductHandler : IRequestHandler<DeleteProductRequest, Unit>
         }
         else
         {
-            _exceptions.ItemNotExists();
+            throw new NotFoundException();
         }
 
         return Unit.Task;

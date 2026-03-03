@@ -1,5 +1,6 @@
 using BackendTest.Application.Requests.Person;
 using BackendTest.Application.Responses.Person;
+using BackendTest.Exceptions;
 using MediatR;
 
 namespace BackendTest.Application.Handlers.Person;
@@ -7,28 +8,25 @@ namespace BackendTest.Application.Handlers.Person;
 public class UpdatePersonHandler : IRequestHandler<UpdatePersonRequest, UpdatePersonResponse>
 {
     private readonly Data _data;
-    private readonly CommonExceptions _exceptions;
-
     private readonly HelperUtils _helper;
 
-    public UpdatePersonHandler(Data data, CommonExceptions exceptions, HelperUtils helper)
+    public UpdatePersonHandler(Data data, HelperUtils helper)
     {
         _data = data;
-        _exceptions = exceptions;
         _helper = helper;
     }
 
     public Task<UpdatePersonResponse> Handle(UpdatePersonRequest request, CancellationToken cancellationToken)
     {
-        //TODO fluent validation on the controller
+        //TODO fluent validation
         if (request.YearOfBirth > DateTime.UtcNow.Year)
         {
-            throw new Exception("Customer can not be born after current year");
+            throw new DomainModelException("Customer can not be born after current year");
         }
 
         if (!_helper.PersonExists(request.Id))
         {
-            _exceptions.ItemNotExists();
+            throw new NotFoundException();
         }
 
         var existingPerson = _data.persons.Single(p => p.Id == request.Id);
@@ -40,7 +38,7 @@ public class UpdatePersonHandler : IRequestHandler<UpdatePersonRequest, UpdatePe
         }
         else 
         {
-            _exceptions.ItemNotExists();
+            throw new NotFoundException();
         }
 
         return Task.FromResult(new UpdatePersonResponse(existingPerson));

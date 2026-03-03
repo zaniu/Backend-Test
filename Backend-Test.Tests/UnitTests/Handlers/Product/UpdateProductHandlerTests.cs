@@ -1,6 +1,6 @@
-using BackendTest;
 using BackendTest.Application.Handlers.Product;
 using BackendTest.Application.Requests.Product;
+using BackendTest.Exceptions;
 using FluentAssertions;
 
 namespace BackendTest.Test.UnitTests.Handlers.Product;
@@ -11,7 +11,7 @@ public class UpdateProductHandlerTests
     public async Task Handle_WithExistingId_UpdatesValues()
     {
         var data = new Data();
-        var handler = new UpdateProductHandler(data, new CommonExceptions(), new HelperUtils(data));
+        var handler = new UpdateProductHandler(data, new HelperUtils(data));
 
         var response = await handler.Handle(new UpdateProductRequest(2, "Updated Product", "Updated", 44.3m), CancellationToken.None);
 
@@ -24,10 +24,10 @@ public class UpdateProductHandlerTests
     public async Task Handle_WithMissingId_ThrowsException()
     {
         var data = new Data();
-        var handler = new UpdateProductHandler(data, new CommonExceptions(), new HelperUtils(data));
+        var handler = new UpdateProductHandler(data, new HelperUtils(data));
 
         var act = async () => await handler.Handle(new UpdateProductRequest(999, "None", "None", 1m), CancellationToken.None);
 
-        await act.Should().ThrowAsync<Exception>().WithMessage("Item does not exist");
+        await act.Should().ThrowAsync<NotFoundException>().WithMessage("Item does not exist");
     }
 }
