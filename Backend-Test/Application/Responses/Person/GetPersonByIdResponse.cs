@@ -10,10 +10,6 @@ public class GetPersonByIdResponse
 
     public int YearOfBirth { get; init; }
 
-    public GetPersonByIdResponse()
-    {
-    }
-
     public GetPersonByIdResponse(Model.Person person)
     {
         Id = person.Id;

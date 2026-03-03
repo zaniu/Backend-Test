@@ -10,10 +10,6 @@ public class GetProductByIdResponse
 
     public decimal Price { get; init; }
 
-    public GetProductByIdResponse()
-    {
-    }
-
     public GetProductByIdResponse(Model.Product product)
     {
         Id = product.Id;

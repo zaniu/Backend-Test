@@ -7,10 +7,6 @@ public class AddPersonResponse
     public string Lastname { get; init; }
     public int YearOfBirth { get; init; }
 
-    public AddPersonResponse()
-    {
-    }
-
     public AddPersonResponse(Model.Person person)
     {
         Id = person.Id;

@@ -1,5 +1,4 @@
 using System.Net;
-using BackendTest.Contracts;
 using FluentAssertions;
 
 namespace BackendTest.Test.IntegrationTests;
@@ -16,7 +15,7 @@ public class EnvironmentControllerIntegrationTests : IntegrationTestBase
         var response = await GetAsync(client, "/environment/production");
         
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var content = await ReadAsJsonAsync<Response<bool>>(response);
+        var content = await ReadAsJsonAsync<ApiResponse<bool>>(response);
         content.Should().NotBeNull();
         content.Value.Should().BeFalse();
     }
@@ -28,7 +27,7 @@ public class EnvironmentControllerIntegrationTests : IntegrationTestBase
         var response = await GetAsync(client, "/environment/apiversion");
         
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var content = await ReadAsJsonAsync<Response<string>>(response);
+        var content = await ReadAsJsonAsync<ApiResponse<string>>(response);
         content.Should().NotBeNull();
         content.Value.Should().Be("2.3");
     }
@@ -40,7 +39,7 @@ public class EnvironmentControllerIntegrationTests : IntegrationTestBase
         var response = await GetAsync(client, "/environment/uiversion");
         
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-        var content = await ReadAsJsonAsync<Response<string>>(response);
+        var content = await ReadAsJsonAsync<ApiResponse<string>>(response);
         content.Should().NotBeNull();
         content.Value.Should().Be("4.7");
     }

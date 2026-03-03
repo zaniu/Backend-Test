@@ -7,10 +7,6 @@ public class AddProductResponse
     public string Type { get; init; }
     public decimal Price { get; init; }
 
-    public AddProductResponse()
-    {
-    }
-
     public AddProductResponse(Model.Product product)
     {
         Id = product.Id;

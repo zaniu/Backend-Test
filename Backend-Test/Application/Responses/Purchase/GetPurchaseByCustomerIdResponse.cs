@@ -6,11 +6,6 @@ public class GetPurchaseByCustomerIdResponse
     public int CustomerId { get; init; }
     public List<int> ProductsIds { get; init; }
 
-    public GetPurchaseByCustomerIdResponse()
-    {
-        ProductsIds = [];
-    }
-
     public GetPurchaseByCustomerIdResponse(Model.Purchase purchase)
     {
         Id = purchase.Id;

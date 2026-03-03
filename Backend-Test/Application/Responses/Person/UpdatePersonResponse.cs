@@ -7,10 +7,6 @@ public class UpdatePersonResponse
     public string Lastname { get; init; }
     public int YearOfBirth { get; init; }
 
-    public UpdatePersonResponse()
-    {
-    }
-
     public UpdatePersonResponse(Model.Person person)
     {
         Id = person.Id;
