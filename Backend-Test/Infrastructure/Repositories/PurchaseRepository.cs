@@ -26,9 +26,9 @@ public class PurchaseRepository : IPurchaseRepository
         return _data.purchases.FirstOrDefault(purchase => purchase.Id == id);
     }
 
-    public Model.Purchase GetByCustomerId(int customerId, CancellationToken cancellationToken)
+    public List<Model.Purchase> GetByCustomerId(int customerId, CancellationToken cancellationToken)
     {
-        return _data.purchases.FirstOrDefault(purchase => purchase.CustomerId == customerId);
+        return _data.purchases.Where(purchase => purchase.CustomerId == customerId).ToList();
     }
 
     public void Add(Model.Purchase purchase, CancellationToken cancellationToken)
@@ -47,8 +47,8 @@ public class PurchaseRepository : IPurchaseRepository
 
     public void DeleteByCustomerId(int customerId, CancellationToken cancellationToken)
     {
-        var purchase = GetByCustomerId(customerId, cancellationToken);
-        if (purchase != null)
+        var purchases = GetByCustomerId(customerId, cancellationToken);
+        foreach (var purchase in purchases)
         {
             _data.purchases.Remove(purchase);
         }

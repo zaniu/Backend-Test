@@ -10,21 +10,21 @@ namespace BackendTest.Test.UnitTests.Handlers.Purchase;
 public class GetPurchaseByCustomerIdHandlerTests
 {
     [Fact]
-    public async Task Handle_WithExistingId_ReturnsPurchase()
+    public async Task Handle_WithExistingId_ReturnsPurchases()
     {
         // Arrange
         var repositoryMock = new Mock<IPurchaseRepository>();
         repositoryMock
             .Setup(repository => repository.GetByCustomerId(1, It.IsAny<CancellationToken>()))
-            .Returns(new Model.Purchase(1, 1, [1, 2]));
+            .Returns([new Model.Purchase(1, 1, [1, 2]), new Model.Purchase(2, 1, [3])]);
         var handler = new GetPurchaseByCustomerIdHandler(repositoryMock.Object);
 
         // Act
         var response = await handler.Handle(new GetPurchaseByCustomerIdRequest(1), CancellationToken.None);
 
         // Assert
-        response.CustomerId.Should().Be(1);
-        response.ProductsIds.Should().NotBeEmpty();
+        response.Purchases.Should().HaveCount(2);
+        response.Purchases.Should().OnlyContain(purchase => purchase.CustomerId == 1);
     }
 
     [Fact]
@@ -34,7 +34,7 @@ public class GetPurchaseByCustomerIdHandlerTests
         var repositoryMock = new Mock<IPurchaseRepository>();
         repositoryMock
             .Setup(repository => repository.GetByCustomerId(999, It.IsAny<CancellationToken>()))
-            .Returns((Model.Purchase)null);
+            .Returns([]);
         var handler = new GetPurchaseByCustomerIdHandler(repositoryMock.Object);
 
         // Act

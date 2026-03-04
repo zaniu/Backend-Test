@@ -40,23 +40,21 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
     [InlineData(5)]
     public async Task GetByCustomerId_WithExistingCustomerId_ReturnsPurchaseData(int customerId)
     {
-        // Arrange:
+        // Arrange
         // Data should be inserted into purchases collection before test execution
         // Expected: Purchase records with CustomerId={customerId} exist in the collection
         
-        // Act:
+        // Act
         using var client = CreateClient();
         var response = await GetAsync(client, $"/purchases/customer/{customerId}");
         
-        // Assert:
+        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK, $"Should return purchase data for existing customer {customerId}");
-        var wrapper = await ReadAsJsonAsync<ApiResponse<PurchaseDto>>(response);
-        var purchase = wrapper.Value;
-        
-        purchase.Should().NotBeNull("Purchase object should be deserialized");
-        purchase!.CustomerId.Should().Be(customerId, $"Returned purchase should belong to customer {customerId}");
-        purchase.ProductsIds.Should().NotBeNull("Purchase should have product IDs");
-        purchase.ProductsIds!.Should().NotBeEmpty("Purchase should contain at least one product");
+        var wrapper = await ReadAsJsonAsync<ApiResponse<PurchasesByCustomerDto>>(response);
+        wrapper.Value.Should().NotBeNull("Purchase collection wrapper should be deserialized");
+        wrapper.Value.Purchases.Should().NotBeEmpty("At least one purchase should exist for the customer");
+        wrapper.Value.Purchases.Should().OnlyContain(purchase => purchase.CustomerId == customerId);
+        wrapper.Value.Purchases.Should().OnlyContain(purchase => purchase.ProductsIds != null && purchase.ProductsIds.Count > 0);
     }
 
     [Fact]
@@ -93,9 +91,8 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
 
         var getResponse = await GetAsync(client, "/purchases/customer/999");
         getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        var getWrapper = await ReadAsJsonAsync<ApiResponse<PurchaseDto>>(getResponse);
-        getWrapper.Value.Id.Should().Be(100);
-        getWrapper.Value.CustomerId.Should().Be(999);
+        var getWrapper = await ReadAsJsonAsync<ApiResponse<PurchasesByCustomerDto>>(getResponse);
+        getWrapper.Value.Purchases.Should().Contain(purchase => purchase.Id == 100 && purchase.CustomerId == 999);
     }
 
     [Fact]

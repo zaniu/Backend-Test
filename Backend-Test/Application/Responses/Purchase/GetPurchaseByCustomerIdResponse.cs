@@ -2,14 +2,10 @@ namespace BackendTest.Application.Responses.Purchase;
 
 public class GetPurchaseByCustomerIdResponse
 {
-    public int Id { get; init; }
-    public int CustomerId { get; init; }
-    public List<int> ProductsIds { get; init; }
+    public IReadOnlyCollection<PurchaseItemResponse> Purchases { get; init; }
 
-    public GetPurchaseByCustomerIdResponse(Model.Purchase purchase)
+    public GetPurchaseByCustomerIdResponse(List<Model.Purchase> purchases)
     {
-        Id = purchase.Id;
-        CustomerId = purchase.CustomerId;
-        ProductsIds = purchase.ProductsIds.ToList();
+        Purchases = purchases.Select(purchase => new PurchaseItemResponse(purchase)).ToList();
     }
 }

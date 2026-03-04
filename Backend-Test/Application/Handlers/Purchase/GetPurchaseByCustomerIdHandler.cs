@@ -17,13 +17,13 @@ public class GetPurchaseByCustomerIdHandler : IRequestHandler<GetPurchaseByCusto
 
     public Task<GetPurchaseByCustomerIdResponse> Handle(GetPurchaseByCustomerIdRequest request, CancellationToken cancellationToken)
     {
-        var purchase = _purchaseRepository.GetByCustomerId(request.CustomerId, cancellationToken);
+        var purchases = _purchaseRepository.GetByCustomerId(request.CustomerId, cancellationToken);
 
-        if (purchase == null)
+        if (purchases.Count == 0)
         {
             throw new NotFoundException();
         }
 
-        return Task.FromResult(new GetPurchaseByCustomerIdResponse(purchase));
+        return Task.FromResult(new GetPurchaseByCustomerIdResponse(purchases));
     }
 }

@@ -39,15 +39,15 @@ public class PersonsControllerIntegrationTests : IntegrationTestBase
     [InlineData(2, "Jane")]
     public async Task GetById_WithExistingId_ReturnsPersonData(int personId, string expectedFirstName)
     {
-        // Arrange:
+        // Arrange
         // Data should be inserted into persons collection before test execution
         // Expected: Person with ID={personId} and firstname={expectedFirstName}
         
-        // Act:
+        // Act
         using var client = CreateClient();
         var response = await GetAsync(client, $"/persons/{personId}");
         
-        // Assert:
+        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var wrapper = await ReadAsJsonAsync<ApiResponse<PersonDto>>(response);
         var person = wrapper.Value;
@@ -116,15 +116,15 @@ public class PersonsControllerIntegrationTests : IntegrationTestBase
     [Fact]
     public async Task Update_WithValidPerson_ReturnsAcceptedWithPerson()
     {
-        // Arrange:
+        // Arrange
         // Data: Person with ID=1 should exist in persons collection
         var request = new UpdatePersonRequest("UpdatedFirstName", "UpdatedLastName", 1980);
         
-        // Act:
+        // Act
         using var client = CreateClient();
         var response = await PutAsync(client, "/persons/1", request);
         
-        // Assert:
+        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Accepted, "Valid update should be accepted");
 
         var wrapper = await ReadAsJsonAsync<ApiResponse<PersonDto>>(response);
@@ -138,16 +138,16 @@ public class PersonsControllerIntegrationTests : IntegrationTestBase
     [Fact]
     public async Task Update_WithFutureYearOfBirth_ReturnsBadRequest()
     {
-        // Arrange:
+        // Arrange
         // Data: Person with ID=1 should exist in persons collection
         var futureYear = DateTime.UtcNow.Year + 1;
         var request = new UpdatePersonRequest("TestName", "TestLastName", futureYear);
         
-        // Act:
+        // Act
         using var client = CreateClient();
         var response = await PutAsync(client, "/persons/1", request);
         
-        // Assert:
+        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest, "Future year of birth should cause validation error");
     }
 
@@ -170,15 +170,15 @@ public class PersonsControllerIntegrationTests : IntegrationTestBase
     [InlineData(10)]
     public async Task Delete_WithExistingId_ReturnsNoContent(int personId)
     {
-        // Arrange:
+        // Arrange
         // Data should be inserted into persons collection before test execution
         // Expected: Person with ID={personId} exists in the collection
         
-        // Act:
+        // Act
         using var client = CreateClient();
         var response = await DeleteAsync(client, $"/persons/{personId}");
         
-        // Assert:
+        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         var getResponse = await GetAsync(client, $"/persons/{personId}");

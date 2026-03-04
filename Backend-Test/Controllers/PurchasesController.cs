@@ -18,12 +18,12 @@ public class PurchasesController : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CollectionResponse<GetPurchaseByCustomerIdResponse>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CollectionResponse<PurchaseItemResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleItemResponse<object>))]
-    public async Task<ActionResult<CollectionResponse<GetPurchaseByCustomerIdResponse>>> GetAll()
+    public async Task<ActionResult<CollectionResponse<PurchaseItemResponse>>> GetAll()
     {
         var response = await _mediator.Send(new GetAllPurchasesRequest());
-        return Ok(new CollectionResponse<GetPurchaseByCustomerIdResponse>(response.Purchases));
+        return Ok(new CollectionResponse<PurchaseItemResponse>(response.Purchases));
     }
 
     [HttpGet("customer/{customerId}")]

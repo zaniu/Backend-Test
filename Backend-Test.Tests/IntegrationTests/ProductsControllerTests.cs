@@ -41,10 +41,10 @@ public class ProductsControllerIntegrationTests : IntegrationTestBase
         // Arrange
         using var client = CreateClient();
         
-        // Act:
+        // Act
         var response = await GetAsync(client, $"/products/{productId}");
         
-        // Assert:
+        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var wrapper = await ReadAsJsonAsync<ApiResponse<ProductDto>>(response);
         var product = wrapper.Value;
@@ -138,11 +138,13 @@ public class ProductsControllerIntegrationTests : IntegrationTestBase
     [InlineData(6)]
     public async Task Delete_WithExistingId_ReturnsNoContent(int productId)
     {
+        // Arrange
         using var client = CreateClient();
-        // Act:
+
+        // Act
         var response = await DeleteAsync(client, $"/products/{productId}");
         
-        // Assert:
+        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         var getResponse = await GetAsync(client, $"/products/{productId}");

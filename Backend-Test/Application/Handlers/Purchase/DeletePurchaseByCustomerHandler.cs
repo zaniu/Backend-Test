@@ -16,9 +16,9 @@ public class DeletePurchaseByCustomerHandler : IRequestHandler<DeletePurchaseByC
 
     public Task<Unit> Handle(DeletePurchaseByCustomerRequest request, CancellationToken cancellationToken)
     {
-        var purchase = _purchaseRepository.GetByCustomerId(request.CustomerId, cancellationToken);
+        var purchases = _purchaseRepository.GetByCustomerId(request.CustomerId, cancellationToken);
 
-        if (purchase == null)
+        if (purchases.Count == 0)
         {
             throw new NotFoundException();
         }
