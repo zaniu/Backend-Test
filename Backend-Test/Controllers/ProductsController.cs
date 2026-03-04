@@ -19,7 +19,7 @@ public class ProductsController : ControllerBase
 
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CollectionResponse<GetProductByIdResponse>))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ValidationProblemDetails))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleItemResponse<object>))]
     public async Task<ActionResult<CollectionResponse<GetProductByIdResponse>>> GetAll()
     {
         var response = await _mediator.Send(new GetAllProductsRequest());
@@ -28,8 +28,8 @@ public class ProductsController : ControllerBase
 
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SingleItemResponse<GetProductByIdResponse>))]
-    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ValidationProblemDetails))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ValidationProblemDetails))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(SingleItemResponse<object>))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleItemResponse<object>))]
     public async Task<ActionResult<SingleItemResponse<GetProductByIdResponse>>> GetById(int id)
     {
         var response = await _mediator.Send(new GetProductByIdRequest(id));
@@ -39,9 +39,9 @@ public class ProductsController : ControllerBase
     [HttpPost]
     [Consumes("application/json")]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(SingleItemResponse<AddProductResponse>))]
-    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
-    [ProducesResponseType(StatusCodes.Status409Conflict, Type = typeof(ValidationProblemDetails))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ValidationProblemDetails))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(SingleItemResponse<object>))]
+    [ProducesResponseType(StatusCodes.Status409Conflict, Type = typeof(SingleItemResponse<object>))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleItemResponse<object>))]
     public async Task<ActionResult<SingleItemResponse<AddProductResponse>>> Add([FromBody] AddProductRequest request)
     {
         var response = await _mediator.Send(request);
@@ -51,9 +51,9 @@ public class ProductsController : ControllerBase
     [HttpPut("{id}")]
     [Consumes("application/json")]
     [ProducesResponseType(StatusCodes.Status202Accepted, Type = typeof(SingleItemResponse<UpdateProductResponse>))]
-    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
-    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ValidationProblemDetails))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ValidationProblemDetails))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(SingleItemResponse<object>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(SingleItemResponse<object>))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleItemResponse<object>))]
     public async Task<ActionResult<SingleItemResponse<UpdateProductResponse>>> Update(int id, [FromBody] UpdateProductRequest request)
     {
         var command = request with { Id = id };
@@ -63,8 +63,8 @@ public class ProductsController : ControllerBase
 
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ValidationProblemDetails))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ValidationProblemDetails))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(SingleItemResponse<object>))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleItemResponse<object>))]
     public async Task<ActionResult> Delete(int id)
     {
         await _mediator.Send(new DeleteProductRequest(id));

@@ -6,6 +6,7 @@
     <RootNamespace>BackendTest.Test</RootNamespace>
     <AssemblyName>BackendTest.Test</AssemblyName>
     <IsPackable>false</IsPackable>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

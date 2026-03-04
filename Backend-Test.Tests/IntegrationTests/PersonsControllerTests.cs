@@ -4,7 +4,7 @@ using FluentAssertions;
 
 namespace BackendTest.Test.IntegrationTests;
 
-public class PersonControllerIntegrationTests : IntegrationTestBase
+public class PersonsControllerIntegrationTests : IntegrationTestBase
 {
     // NOTE: These tests assume pre-populated data in Data.cs
     // Data should be initialized in the datasource before test execution

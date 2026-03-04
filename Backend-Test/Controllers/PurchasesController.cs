@@ -19,7 +19,7 @@ public class PurchasesController : ControllerBase
 
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CollectionResponse<GetPurchaseByCustomerIdResponse>))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ValidationProblemDetails))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleItemResponse<object>))]
     public async Task<ActionResult<CollectionResponse<GetPurchaseByCustomerIdResponse>>> GetAll()
     {
         var response = await _mediator.Send(new GetAllPurchasesRequest());
@@ -28,8 +28,8 @@ public class PurchasesController : ControllerBase
 
     [HttpGet("customer/{customerId}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SingleItemResponse<GetPurchaseByCustomerIdResponse>))]
-    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ValidationProblemDetails))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ValidationProblemDetails))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(SingleItemResponse<object>))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleItemResponse<object>))]
     public async Task<ActionResult<SingleItemResponse<GetPurchaseByCustomerIdResponse>>> GetByCustomerId(int customerId)
     {
         var response = await _mediator.Send(new GetPurchaseByCustomerIdRequest(customerId));
@@ -41,7 +41,7 @@ public class PurchasesController : ControllerBase
     /// </summary>
     /// <param name="id">The id of the Purchase order</param>
     [HttpGet("{id}/report")]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ValidationProblemDetails))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleItemResponse<object>))]
     public async Task<ActionResult<byte[]>> GetPurchaseReportById(int id)
     {
         throw new NotImplementedException("Please implement me!");
@@ -50,9 +50,9 @@ public class PurchasesController : ControllerBase
     [HttpPost]
     [Consumes("application/json")]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(SingleItemResponse<AddPurchaseResponse>))]
-    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
-    [ProducesResponseType(StatusCodes.Status409Conflict, Type = typeof(ValidationProblemDetails))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ValidationProblemDetails))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(SingleItemResponse<object>))]
+    [ProducesResponseType(StatusCodes.Status409Conflict, Type = typeof(SingleItemResponse<object>))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleItemResponse<object>))]
     public async Task<ActionResult<SingleItemResponse<AddPurchaseResponse>>> Add([FromBody] AddPurchaseRequest request)
     {
         var response = await _mediator.Send(request);
@@ -61,19 +61,18 @@ public class PurchasesController : ControllerBase
 
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ValidationProblemDetails))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ValidationProblemDetails))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(SingleItemResponse<object>))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleItemResponse<object>))]
     public async Task<ActionResult> Delete(int id)
     {
         await _mediator.Send(new DeletePurchaseRequest(id));
         return NoContent();
     }
 
-    //TODO consider moving to person/{id}/purchases
     [HttpDelete("customer/{customerId}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ValidationProblemDetails))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ValidationProblemDetails))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(SingleItemResponse<object>))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleItemResponse<object>))]
     public async Task<ActionResult> DeleteFromCustomer(int customerId)
     {
         await _mediator.Send(new DeletePurchaseByCustomerRequest(customerId));

@@ -1,5 +1,3 @@
-#nullable enable
-
 namespace BackendTest.Test.IntegrationTests;
 
 /// <summary>
@@ -8,8 +6,8 @@ namespace BackendTest.Test.IntegrationTests;
 public class ApiResponse<T>
 {
 	public bool IsSuccess { get; set; }
-	public string? Message { get; set; }
-	public T? Value { get; set; }
-	public List<string>? Errors { get; set; }
-	public string? TraceId { get; set; }
+	public string Message { get; set; }
+	public T Value { get; set; }
+	public List<string> Errors { get; set; }
+	public string TraceId { get; set; }
 }

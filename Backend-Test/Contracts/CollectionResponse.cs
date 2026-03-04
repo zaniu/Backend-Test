@@ -1,8 +1,6 @@
-#nullable enable
-
 namespace BackendTest.Contracts;
 
-public record CollectionResponse<T>(bool IsSuccess, string? Message, IReadOnlyCollection<T>? Value, List<string>? Errors, string? TraceId)
+public record CollectionResponse<T>(bool IsSuccess, string Message, IReadOnlyCollection<T> Value, List<string> Errors, string TraceId)
     : ResponseBase(IsSuccess, Message, Errors, TraceId)
 {
     public CollectionResponse(IReadOnlyCollection<T> value)
@@ -10,7 +8,7 @@ public record CollectionResponse<T>(bool IsSuccess, string? Message, IReadOnlyCo
     {
     }
 
-    public CollectionResponse(string message, List<string>? errors, string? traceId = null)
+    public CollectionResponse(string message, List<string> errors, string traceId = null)
         : this(false, message, null, errors, traceId)
     {
     }
