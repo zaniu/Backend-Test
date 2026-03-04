@@ -8,11 +8,16 @@ namespace BackendTest.Middleware;
 
 public class ExceptionHandlingMiddleware
 {
-    private readonly RequestDelegate _next;
+    private const string GenericUnexpectedErrorMessage = "An unexpected error occurred.";
+    private const string GenericClientErrorMessage = "The request is invalid.";
 
-    public ExceptionHandlingMiddleware(RequestDelegate next)
+    private readonly RequestDelegate _next;
+    private readonly ILogger<ExceptionHandlingMiddleware> _logger;
+
+    public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
     {
         _next = next;
+        _logger = logger;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -27,7 +32,7 @@ public class ExceptionHandlingMiddleware
         }
     }
 
-    private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
+    private async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
         var statusCode = exception switch
         {
@@ -38,19 +43,46 @@ public class ExceptionHandlingMiddleware
             _ => HttpStatusCode.InternalServerError
         };
 
-        var errors = exception is ValidationException validationException
-            ? validationException.Errors
-                .Select(error => $"{error.PropertyName}: {error.ErrorMessage}")
-                .ToList()
-            : [exception.Message];
+        var isUnhandledError = statusCode == HttpStatusCode.InternalServerError;
+        var responseMessage = CreateResponseMessage(exception, isUnhandledError);
 
-        var response = new SingleItemResponse<object>(exception.Message, errors, context.TraceIdentifier);
+        if (isUnhandledError)
+        {
+            _logger.LogError(exception, "Unhandled exception. TraceId: {TraceId}", context.TraceIdentifier);
+        }
+
+        var errors = CreateErrors(exception, responseMessage);
+
+        var response = new SingleItemResponse<object>(responseMessage, errors, context.TraceIdentifier);
 
         context.Response.StatusCode = (int)statusCode;
         context.Response.ContentType = "application/json";
 
         var json = JsonSerializer.Serialize(response);
         await context.Response.WriteAsync(json);
+    }
+
+    private static string CreateResponseMessage(Exception exception, bool isUnhandledError)
+    {
+        if (isUnhandledError)
+        {
+            return GenericUnexpectedErrorMessage;
+        }
+
+        var message = exception.Message?.Trim();
+        return string.IsNullOrWhiteSpace(message) ? GenericClientErrorMessage : message;
+    }
+
+    private static List<string> CreateErrors(Exception exception, string responseMessage)
+    {
+        if (exception is not ValidationException validationException)
+        {
+            return [responseMessage];
+        }
+
+        return validationException.Errors
+            .Select(error => $"{error.PropertyName}: {error.ErrorMessage}")
+            .ToList();
     }
 
 }

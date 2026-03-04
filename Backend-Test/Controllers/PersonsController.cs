@@ -50,7 +50,7 @@ public class PersonsController : ControllerBase
 
     [HttpPut("{id}")]
     [Consumes("application/json")]
-    [ProducesResponseType(StatusCodes.Status202Accepted, Type = typeof(SingleItemResponse<UpdatePersonResponse>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SingleItemResponse<UpdatePersonResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(SingleItemResponse<object>))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(SingleItemResponse<object>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleItemResponse<object>))]
@@ -58,7 +58,7 @@ public class PersonsController : ControllerBase
     {
         var command = request with { Id = id };
         var response = await _mediator.Send(command);
-        return Accepted(new SingleItemResponse<UpdatePersonResponse>(response));
+        return Ok(new SingleItemResponse<UpdatePersonResponse>(response));
     }
 
     [HttpDelete("{id}")]

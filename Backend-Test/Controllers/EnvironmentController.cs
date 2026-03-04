@@ -17,13 +17,15 @@ public class EnvironmentController : ControllerBase
 
     [HttpGet("production")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SingleItemResponse<bool>))]
-    public ActionResult<SingleItemResponse<bool>> GetIsProduction() 
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleItemResponse<object>))]
+    public ActionResult<SingleItemResponse<bool>> GetIsProduction()
     {
         return Ok(new SingleItemResponse<bool>(_config.IsProduction));
     }
 
     [HttpGet("apiversion")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SingleItemResponse<string>))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleItemResponse<object>))]
     public ActionResult<SingleItemResponse<string>> GetApiVersion()
     {
         return Ok(new SingleItemResponse<string>(_config.ApiVersion));
@@ -31,6 +33,7 @@ public class EnvironmentController : ControllerBase
 
     [HttpGet("uiversion")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SingleItemResponse<string>))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleItemResponse<object>))]
     public ActionResult<SingleItemResponse<string>> GetUIVersion()
     {
         return Ok(new SingleItemResponse<string>(_config.UiVersion));

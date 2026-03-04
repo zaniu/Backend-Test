@@ -6,6 +6,9 @@ using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 
 namespace BackendTest.Test.UnitTests.Middleware;
 
@@ -20,7 +23,7 @@ public class ExceptionHandlingMiddlewareTests
         {
             wasCalled = true;
             return Task.CompletedTask;
-        });
+        }, NullLogger<ExceptionHandlingMiddleware>.Instance);
 
         var context = new DefaultHttpContext();
 
@@ -34,7 +37,9 @@ public class ExceptionHandlingMiddlewareTests
     [Fact]
     public async Task InvokeAsync_WhenNotFoundException_ShouldReturn404WithEnvelope()
     {
-        // Arrange & Act
+        // Arrange
+
+        // Act
         var context = await InvokeAndCaptureResponseAsync(new NotFoundException());
 
         // Assert
@@ -76,7 +81,9 @@ public class ExceptionHandlingMiddlewareTests
     [Fact]
     public async Task InvokeAsync_WhenUnhandledException_ShouldReturn500()
     {
-        // Arrange & Act
+        // Arrange
+
+        // Act
         var context = await InvokeAndCaptureResponseAsync(new Exception("boom"), "trace-500");
 
         // Assert
@@ -85,13 +92,40 @@ public class ExceptionHandlingMiddlewareTests
         var body = await ReadResponseBodyAsync(context);
         using var json = JsonDocument.Parse(body);
 
-        json.RootElement.GetProperty("Errors")[0].GetString().Should().Be("boom");
+        json.RootElement.GetProperty("Message").GetString().Should().Be("An unexpected error occurred.");
+        json.RootElement.GetProperty("Errors")[0].GetString().Should().Be("An unexpected error occurred.");
         json.RootElement.GetProperty("TraceId").GetString().Should().Be("trace-500");
+    }
+
+    [Fact]
+    public async Task InvokeAsync_WhenUnhandledException_ShouldLogError()
+    {
+        // Arrange
+        var loggerMock = new Mock<ILogger<ExceptionHandlingMiddleware>>();
+        var middleware = new ExceptionHandlingMiddleware(_ => throw new Exception("boom"), loggerMock.Object);
+        var context = new DefaultHttpContext
+        {
+            TraceIdentifier = "trace-log-500"
+        };
+        context.Response.Body = new MemoryStream();
+
+        // Act
+        await middleware.InvokeAsync(context);
+
+        // Assert
+        loggerMock.Verify(
+            logger => logger.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((_, _) => true),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
     }
 
     private static async Task<HttpContext> InvokeAndCaptureResponseAsync(Exception exception, string traceId = "trace-404")
     {
-        var middleware = new ExceptionHandlingMiddleware(_ => throw exception);
+        var middleware = new ExceptionHandlingMiddleware(_ => throw exception, NullLogger<ExceptionHandlingMiddleware>.Instance);
 
         var context = new DefaultHttpContext();
         context.TraceIdentifier = traceId;
