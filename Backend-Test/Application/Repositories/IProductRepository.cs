@@ -2,10 +2,11 @@ namespace BackendTest.Application.Repositories;
 
 public interface IProductRepository
 {
-    bool Exists(int id, CancellationToken cancellationToken);
-    List<Model.Product> GetAll(CancellationToken cancellationToken);
-    Model.Product GetById(int id, CancellationToken cancellationToken);
-    void Add(Model.Product product, CancellationToken cancellationToken);
-    void Update(Model.Product product, CancellationToken cancellationToken);
-    void DeleteById(int id, CancellationToken cancellationToken);
+    Task<bool> Exists(int id, CancellationToken cancellationToken);
+    Task<bool> ExistsAll(IEnumerable<int> ids, CancellationToken cancellationToken);
+    Task<List<Model.Product>> GetAll(CancellationToken cancellationToken);
+    Task<Model.Product> GetById(int id, CancellationToken cancellationToken);
+    Task<Model.Product> TryAdd(Model.Product product, CancellationToken cancellationToken);
+    Task<Model.Product> TryUpdate(Model.Product product, CancellationToken cancellationToken);
+    Task<bool> TryDeleteById(int id, CancellationToken cancellationToken);
 }

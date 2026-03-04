@@ -15,8 +15,8 @@ public class AddProductHandlerTests
         // Arrange
         var repositoryMock = new Mock<IProductRepository>();
         repositoryMock
-            .Setup(repository => repository.Exists(999, It.IsAny<CancellationToken>()))
-            .Returns(false);
+            .Setup(repository => repository.TryAdd(It.IsAny<Model.Product>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Model.Product product, CancellationToken _) => product);
         var handler = new AddProductHandler(repositoryMock.Object);
 
         // Act
@@ -24,7 +24,7 @@ public class AddProductHandlerTests
 
         // Assert
         response.Id.Should().Be(999);
-        repositoryMock.Verify(repository => repository.Add(It.Is<Model.Product>(product =>
+        repositoryMock.Verify(repository => repository.TryAdd(It.Is<Model.Product>(product =>
             product.Id == 999 &&
             product.Name == "Unit Product" &&
             product.Type == "Tools" &&
@@ -37,8 +37,8 @@ public class AddProductHandlerTests
         // Arrange
         var repositoryMock = new Mock<IProductRepository>();
         repositoryMock
-            .Setup(repository => repository.Exists(1, It.IsAny<CancellationToken>()))
-            .Returns(true);
+            .Setup(repository => repository.TryAdd(It.IsAny<Model.Product>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Model.Product)null);
         var handler = new AddProductHandler(repositoryMock.Object);
 
         // Act
@@ -46,6 +46,6 @@ public class AddProductHandlerTests
 
         // Assert
         await act.Should().ThrowAsync<DuplicateException>().WithMessage("Item already exists");
-        repositoryMock.Verify(repository => repository.Add(It.IsAny<Model.Product>(), It.IsAny<CancellationToken>()), Times.Never);
+        repositoryMock.Verify(repository => repository.TryAdd(It.IsAny<Model.Product>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

@@ -20,7 +20,7 @@ public class GetAllProductsHandlerTests
         var repositoryMock = new Mock<IProductRepository>();
         repositoryMock
             .Setup(repository => repository.GetAll(It.IsAny<CancellationToken>()))
-            .Returns(products);
+            .ReturnsAsync(products);
         var handler = new GetAllProductsHandler(repositoryMock.Object);
 
         // Act

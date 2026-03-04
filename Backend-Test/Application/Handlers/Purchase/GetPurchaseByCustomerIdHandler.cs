@@ -14,10 +14,10 @@ public class GetPurchaseByCustomerIdHandler : IRequestHandler<GetPurchaseByCusto
         _purchaseRepository = purchaseRepository;
     }
 
-    public Task<GetPurchaseByCustomerIdResponse> Handle(GetPurchaseByCustomerIdRequest request, CancellationToken cancellationToken)
+    public async Task<GetPurchaseByCustomerIdResponse> Handle(GetPurchaseByCustomerIdRequest request, CancellationToken cancellationToken)
     {
-        var purchases = _purchaseRepository.GetByCustomerId(request.CustomerId, cancellationToken);
+        var purchases = await _purchaseRepository.GetByCustomerId(request.CustomerId, cancellationToken);
 
-        return Task.FromResult(new GetPurchaseByCustomerIdResponse(purchases));
+        return new GetPurchaseByCustomerIdResponse(purchases);
     }
 }

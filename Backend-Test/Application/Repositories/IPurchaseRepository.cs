@@ -2,13 +2,13 @@ namespace BackendTest.Application.Repositories;
 
 public interface IPurchaseRepository
 {
-    bool Exists(int id, CancellationToken cancellationToken);
-    bool ExistsByCustomerId(int customerId, CancellationToken cancellationToken);
-    bool ExistsByProductId(int productId, CancellationToken cancellationToken);
-    List<Model.Purchase> GetAll(CancellationToken cancellationToken);
-    Model.Purchase GetById(int id, CancellationToken cancellationToken);
-    List<Model.Purchase> GetByCustomerId(int customerId, CancellationToken cancellationToken);
-    void Add(Model.Purchase purchase, CancellationToken cancellationToken);
-    void DeleteById(int id, CancellationToken cancellationToken);
-    void DeleteByCustomerId(int customerId, CancellationToken cancellationToken);
+    Task<bool> Exists(int id, CancellationToken cancellationToken);
+    Task<bool> ExistsByCustomerId(int customerId, CancellationToken cancellationToken);
+    Task<bool> ExistsByProductId(int productId, CancellationToken cancellationToken);
+    Task<List<Model.Purchase>> GetAll(CancellationToken cancellationToken);
+    Task<Model.Purchase> GetById(int id, CancellationToken cancellationToken);
+    Task<List<Model.Purchase>> GetByCustomerId(int customerId, CancellationToken cancellationToken);
+    Task<Model.Purchase> TryAdd(Model.Purchase purchase, CancellationToken cancellationToken);
+    Task<bool> TryDeleteById(int id, CancellationToken cancellationToken);
+    Task<bool> TryDeleteByCustomerId(int customerId, CancellationToken cancellationToken);
 }

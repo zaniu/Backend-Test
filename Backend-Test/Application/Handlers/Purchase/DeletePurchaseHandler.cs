@@ -14,14 +14,15 @@ public class DeletePurchaseHandler : IRequestHandler<DeletePurchaseRequest, Unit
         _purchaseRepository = purchaseRepository;
     }
 
-    public Task<Unit> Handle(DeletePurchaseRequest request, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(DeletePurchaseRequest request, CancellationToken cancellationToken)
     {
-        if (!_purchaseRepository.Exists(request.Id, cancellationToken))
+        var wasDeleted = await _purchaseRepository.TryDeleteById(request.Id, cancellationToken);
+
+        if (!wasDeleted)
         {
             throw new NotFoundException();
         }
 
-        _purchaseRepository.DeleteById(request.Id, cancellationToken);
-        return Task.FromResult(Unit.Value);
+        return Unit.Value;
     }
 }

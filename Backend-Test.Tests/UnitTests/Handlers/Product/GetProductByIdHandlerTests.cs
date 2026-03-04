@@ -16,7 +16,7 @@ public class GetProductByIdHandlerTests
         var repositoryMock = new Mock<IProductRepository>();
         repositoryMock
             .Setup(repository => repository.GetById(1, It.IsAny<CancellationToken>()))
-            .Returns(new Model.Product(1, "Pipe Wrench", "Tools", 20.00m));
+            .ReturnsAsync(new Model.Product(1, "Pipe Wrench", "Tools", 20.00m));
         var handler = new GetProductByIdHandler(repositoryMock.Object);
 
         // Act
@@ -34,7 +34,7 @@ public class GetProductByIdHandlerTests
         var repositoryMock = new Mock<IProductRepository>();
         repositoryMock
             .Setup(repository => repository.GetById(999, It.IsAny<CancellationToken>()))
-            .Returns((Model.Product)null);
+            .ReturnsAsync((Model.Product)null);
         var handler = new GetProductByIdHandler(repositoryMock.Object);
 
         // Act

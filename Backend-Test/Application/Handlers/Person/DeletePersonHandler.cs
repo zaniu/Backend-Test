@@ -16,22 +16,19 @@ public class DeletePersonHandler : IRequestHandler<DeletePersonRequest, Unit>
         _purchaseRepository = purchaseRepository;
     }
 
-    public Task<Unit> Handle(DeletePersonRequest request, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(DeletePersonRequest request, CancellationToken cancellationToken)
     {
-        if (_personRepository.Exists(request.Id, cancellationToken))
+        if (await _purchaseRepository.ExistsByCustomerId(request.Id, cancellationToken))
         {
-            if (_purchaseRepository.ExistsByCustomerId(request.Id, cancellationToken))
-            {
-                throw new DomainModelException("Cannot delete person with existing purchases");
-            }
-
-            _personRepository.DeleteById(request.Id, cancellationToken);
+            throw new DomainModelException("Cannot delete person with existing purchases");
         }
-        else
+
+        var wasDeleted = await _personRepository.TryDeleteById(request.Id, cancellationToken);
+        if (!wasDeleted)
         {
             throw new NotFoundException();
         }
 
-        return Unit.Task;
+        return Unit.Value;
     }
 }

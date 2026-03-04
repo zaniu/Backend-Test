@@ -17,17 +17,14 @@ public class AddPurchaseHandlerTests
         var personRepositoryMock = new Mock<IPersonRepository>();
         var productRepositoryMock = new Mock<IProductRepository>();
         repositoryMock
-            .Setup(repository => repository.Exists(999, It.IsAny<CancellationToken>()))
-            .Returns(false);
+            .Setup(repository => repository.TryAdd(It.IsAny<Model.Purchase>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Model.Purchase purchase, CancellationToken _) => purchase);
         personRepositoryMock
             .Setup(repository => repository.Exists(1, It.IsAny<CancellationToken>()))
-            .Returns(true);
+            .ReturnsAsync(true);
         productRepositoryMock
-            .Setup(repository => repository.Exists(1, It.IsAny<CancellationToken>()))
-            .Returns(true);
-        productRepositoryMock
-            .Setup(repository => repository.Exists(2, It.IsAny<CancellationToken>()))
-            .Returns(true);
+            .Setup(repository => repository.ExistsAll(It.Is<IEnumerable<int>>(ids => ids.SequenceEqual(new[] { 1, 2 })), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
         var handler = new AddPurchaseHandler(repositoryMock.Object, personRepositoryMock.Object, productRepositoryMock.Object);
 
         // Act
@@ -35,7 +32,7 @@ public class AddPurchaseHandlerTests
 
         // Assert
         response.Id.Should().Be(999);
-        repositoryMock.Verify(repository => repository.Add(It.Is<Model.Purchase>(purchase =>
+        repositoryMock.Verify(repository => repository.TryAdd(It.Is<Model.Purchase>(purchase =>
             purchase.Id == 999 &&
             purchase.CustomerId == 1 &&
             purchase.ProductsIds.SequenceEqual(new[] { 1, 2 })), It.IsAny<CancellationToken>()), Times.Once);
@@ -49,8 +46,14 @@ public class AddPurchaseHandlerTests
         var personRepositoryMock = new Mock<IPersonRepository>();
         var productRepositoryMock = new Mock<IProductRepository>();
         repositoryMock
+            .Setup(repository => repository.TryAdd(It.IsAny<Model.Purchase>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Model.Purchase)null);
+        personRepositoryMock
             .Setup(repository => repository.Exists(1, It.IsAny<CancellationToken>()))
-            .Returns(true);
+            .ReturnsAsync(true);
+        productRepositoryMock
+            .Setup(repository => repository.ExistsAll(It.Is<IEnumerable<int>>(ids => ids.SequenceEqual(new[] { 1 })), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
         var handler = new AddPurchaseHandler(repositoryMock.Object, personRepositoryMock.Object, productRepositoryMock.Object);
 
         // Act
@@ -58,7 +61,7 @@ public class AddPurchaseHandlerTests
 
         // Assert
         await act.Should().ThrowAsync<DuplicateException>().WithMessage("Item already exists");
-        repositoryMock.Verify(repository => repository.Add(It.IsAny<Model.Purchase>(), It.IsAny<CancellationToken>()), Times.Never);
+        repositoryMock.Verify(repository => repository.TryAdd(It.IsAny<Model.Purchase>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -68,12 +71,9 @@ public class AddPurchaseHandlerTests
         var repositoryMock = new Mock<IPurchaseRepository>();
         var personRepositoryMock = new Mock<IPersonRepository>();
         var productRepositoryMock = new Mock<IProductRepository>();
-        repositoryMock
-            .Setup(repository => repository.Exists(1000, It.IsAny<CancellationToken>()))
-            .Returns(false);
         personRepositoryMock
             .Setup(repository => repository.Exists(999, It.IsAny<CancellationToken>()))
-            .Returns(false);
+            .ReturnsAsync(false);
         var handler = new AddPurchaseHandler(repositoryMock.Object, personRepositoryMock.Object, productRepositoryMock.Object);
 
         // Act
@@ -81,7 +81,7 @@ public class AddPurchaseHandlerTests
 
         // Assert
         await act.Should().ThrowAsync<DomainModelException>().WithMessage("Customer does not exist");
-        repositoryMock.Verify(repository => repository.Add(It.IsAny<Model.Purchase>(), It.IsAny<CancellationToken>()), Times.Never);
+        repositoryMock.Verify(repository => repository.TryAdd(It.IsAny<Model.Purchase>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -91,15 +91,12 @@ public class AddPurchaseHandlerTests
         var repositoryMock = new Mock<IPurchaseRepository>();
         var personRepositoryMock = new Mock<IPersonRepository>();
         var productRepositoryMock = new Mock<IProductRepository>();
-        repositoryMock
-            .Setup(repository => repository.Exists(1001, It.IsAny<CancellationToken>()))
-            .Returns(false);
         personRepositoryMock
             .Setup(repository => repository.Exists(1, It.IsAny<CancellationToken>()))
-            .Returns(true);
+            .ReturnsAsync(true);
         productRepositoryMock
-            .Setup(repository => repository.Exists(999, It.IsAny<CancellationToken>()))
-            .Returns(false);
+            .Setup(repository => repository.ExistsAll(It.Is<IEnumerable<int>>(ids => ids.SequenceEqual(new[] { 999 })), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
         var handler = new AddPurchaseHandler(repositoryMock.Object, personRepositoryMock.Object, productRepositoryMock.Object);
 
         // Act
@@ -107,6 +104,6 @@ public class AddPurchaseHandlerTests
 
         // Assert
         await act.Should().ThrowAsync<DomainModelException>().WithMessage("One or more products do not exist");
-        repositoryMock.Verify(repository => repository.Add(It.IsAny<Model.Purchase>(), It.IsAny<CancellationToken>()), Times.Never);
+        repositoryMock.Verify(repository => repository.TryAdd(It.IsAny<Model.Purchase>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

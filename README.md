@@ -29,35 +29,70 @@ This home test and the interview are components of the overall evaluation proces
 # Architecture Decisions
 
 ## 1) Runtime support: migration to .NET 10
-The project is intentionally migrated to .NET 10 because the original target runtime was out of support.
+Decision: migrate the solution to .NET 10 because the original runtime was out of support.
 
-- This keeps the solution aligned with a currently supported .NET version.
-- It reduces risk related to security updates and maintenance over time.
+Why:
+- keeps the project on a supported runtime,
+- reduces maintenance and security risk.
 
-Rationale: runtime support lifecycle is a high-impact engineering concern, so this was prioritized early.
+Tradeoff: runtime upgrade can introduce small compatibility work, but this is lower risk than staying on an unsupported target.
 
 ## 2) Unified API contract (success + errors)
-The API intentionally uses a custom, consistent response envelope for both successful and failed requests.
+Decision: use a custom response envelope for both successful and failed API responses.
 
-- Success responses use the contracts in [Backend-Test/Contracts](Backend-Test/Contracts).
-- Error responses are centralized in [Backend-Test/Middleware/ExceptionHandlingMiddleware.cs](Backend-Test/Middleware/ExceptionHandlingMiddleware.cs).
+Implementation:
+- success contracts are in [Backend-Test/Contracts](Backend-Test/Contracts),
+- error responses are centralized in [Backend-Test/Middleware/ExceptionHandlingMiddleware.cs](Backend-Test/Middleware/ExceptionHandlingMiddleware.cs).
 
-Rationale: this keeps client handling predictable and avoids multiple response shapes across endpoints.
+Why: keeps client integration predictable and avoids mixed response shapes.
 
-Tradeoff: this differs from the default ASP.NET `ProblemDetails` shape. In this exercise, consistency for clients was prioritized.
+Tradeoff: this differs from default ASP.NET `ProblemDetails`; consistency was prioritized for this exercise.
 
 ## 3) In-memory data scope (`Data.cs`)
-`Data.cs` is treated as recruiter-provided fixture data ("NOT PART OF TEST. MERELY TO SUPPLY DATA").
+Decision: keep `Data.cs` as recruiter-provided fixture data ("NOT PART OF TEST. MERELY TO SUPPLY DATA").
 
-- The code already introduces repository abstractions to separate application logic from storage details.
-- Replacing in-memory data with real persistence (e.g. EF Core + database) is intentionally deferred to keep scope focused on the exercise goals.
+Why:
+- repository abstractions already separate business logic from storage details,
+- replacing in-memory storage with DB persistence is a straightforward next step.
 
-Rationale: avoid overengineering while preserving a clean migration path to a persistence layer.
+Tradeoff: in-memory storage is not production-grade, but avoids overengineering for assignment scope.
 
 ## 4) Nullable reference types decision (PoC/MVP scope)
-Nullable reference types are intentionally left disabled in this exercise.
+Decision: keep nullable reference types disabled for this phase.
 
-- Goal for this stage was to deliver a working PoC/MVP quickly, without introducing broad nullable-related boilerplate changes across the whole codebase.
-- Confidence is primarily enforced through automated tests (unit + integration) rather than a full nullable-migration pass.
+Why:
+- prioritize PoC/MVP delivery speed,
+- avoid broad nullable-migration churn across the codebase,
+- rely on automated unit/integration tests for current quality control.
 
-Rationale: this keeps scope focused and implementation velocity high for the assignment, while still keeping quality control through strong test coverage.
+Tradeoff: nullable analysis benefits are postponed to a dedicated hardening phase.
+
+## 5) Exception-first flow in handlers + centralized middleware mapping
+Decision: for this PoC/MVP stage, handlers throw domain/application exceptions and [Backend-Test/Middleware/ExceptionHandlingMiddleware.cs](Backend-Test/Middleware/ExceptionHandlingMiddleware.cs) converts them into HTTP responses, instead of using an explicit Result pattern everywhere.
+
+Why:
+- keeps application/handler code direct and readable,
+- reduces controller boilerplate (no repetitive result-to-response mapping in each action),
+- preserves one central place for HTTP error-shape policy.
+
+Tradeoff:
+- exception-based flow is less explicit than `Result<T>` in method signatures,
+- this is acceptable for current scope where delivery speed and simplicity are prioritized.
+
+Future direction: if domain flows become significantly more branching/complex, evaluate a Result pattern for selected paths where explicit failure typing adds clear value.
+
+## 6) No Specification pattern (yet)
+Decision: do not introduce Specification pattern at current size/complexity.
+
+Why:
+- current query rules are simple and readable in handlers/repositories,
+- introducing Specification now would add abstractions and indirection without immediate payoff.
+
+Tradeoff: query/filter logic can become duplicated over time as use-cases grow.
+
+When to introduce it:
+- repeated filtering/business predicates appear across multiple handlers,
+- query composition starts growing (combinable predicates, sorting/paging variants),
+- repository methods begin to proliferate due to predicate permutations.
+
+At that point, Specification pattern becomes a strong candidate to improve reuse and testability.

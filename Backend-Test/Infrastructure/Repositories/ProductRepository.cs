@@ -11,41 +11,53 @@ public class ProductRepository : IProductRepository
         _data = data;
     }
 
-    public bool Exists(int id, CancellationToken cancellationToken)
+    public Task<bool> Exists(int id, CancellationToken cancellationToken)
     {
-        return _data.products.Any(product => product.Id == id);
+        return Task.FromResult(_data.products.Any(product => product.Id == id));
     }
 
-    public List<Model.Product> GetAll(CancellationToken cancellationToken)
+    public Task<bool> ExistsAll(IEnumerable<int> ids, CancellationToken cancellationToken)
     {
-        return _data.products;
+        var existingProductIds = _data.products.Select(product => product.Id).ToHashSet();
+        return Task.FromResult(ids.All(existingProductIds.Contains));
     }
 
-    public Model.Product GetById(int id, CancellationToken cancellationToken)
+    public Task<List<Model.Product>> GetAll(CancellationToken cancellationToken)
     {
-        return _data.products.FirstOrDefault(product => product.Id == id);
+        return Task.FromResult(_data.products.ToList());
     }
 
-    public void Add(Model.Product product, CancellationToken cancellationToken)
+    public Task<Model.Product> GetById(int id, CancellationToken cancellationToken)
     {
+        return Task.FromResult(_data.products.FirstOrDefault(product => product.Id == id));
+    }
+
+    public Task<Model.Product> TryAdd(Model.Product product, CancellationToken cancellationToken)
+    {
+        if (_data.products.Any(existingProduct => existingProduct.Id == product.Id))
+        {
+            return Task.FromResult<Model.Product>(null);
+        }
+
         _data.products.Add(product);
+        return Task.FromResult(product);
     }
 
-    public void Update(Model.Product product, CancellationToken cancellationToken)
+    public Task<Model.Product> TryUpdate(Model.Product product, CancellationToken cancellationToken)
     {
         var existingProductIndex = _data.products.FindIndex(p => p.Id == product.Id);
         if (existingProductIndex != -1)
         {
             _data.products[existingProductIndex] = product;
+            return Task.FromResult(product);
         }
+
+        return Task.FromResult<Model.Product>(null);
     }
 
-    public void DeleteById(int id, CancellationToken cancellationToken)
+    public Task<bool> TryDeleteById(int id, CancellationToken cancellationToken)
     {
-        var product = GetById(id, cancellationToken);
-        if (product != null)
-        {
-            _data.products.Remove(product);
-        }
+        var removedCount = _data.products.RemoveAll(product => product.Id == id);
+        return Task.FromResult(removedCount > 0);
     }
 }

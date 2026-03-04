@@ -22,26 +22,25 @@ public class AddPurchaseHandler : IRequestHandler<AddPurchaseRequest, AddPurchas
         _productRepository = productRepository;
     }
 
-    public Task<AddPurchaseResponse> Handle(AddPurchaseRequest request, CancellationToken cancellationToken)
+    public async Task<AddPurchaseResponse> Handle(AddPurchaseRequest request, CancellationToken cancellationToken)
     {
-        if (_purchaseRepository.Exists(request.Id, cancellationToken))
-        {
-            throw new DuplicateException();
-        }
-
-        if (!_personRepository.Exists(request.CustomerId, cancellationToken))
+        if (!await _personRepository.Exists(request.CustomerId, cancellationToken))
         {
             throw new DomainModelException("Customer does not exist");
         }
 
-        if (request.ProductsIds.Any(productId => !_productRepository.Exists(productId, cancellationToken)))
+        if (!await _productRepository.ExistsAll(request.ProductsIds, cancellationToken))
         {
             throw new DomainModelException("One or more products do not exist");
         }
 
         var purchase = new Model.Purchase(request.Id, request.CustomerId, request.ProductsIds);
-        _purchaseRepository.Add(purchase, cancellationToken);
+        var persistedPurchase = await _purchaseRepository.TryAdd(purchase, cancellationToken);
+        if (persistedPurchase == null)
+        {
+            throw new DuplicateException();
+        }
 
-        return Task.FromResult(new AddPurchaseResponse(purchase));
+        return new AddPurchaseResponse(persistedPurchase);
     }
 }

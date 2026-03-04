@@ -2,10 +2,10 @@ namespace BackendTest.Application.Repositories;
 
 public interface IPersonRepository
 {
-    bool Exists(int id, CancellationToken cancellationToken);
-    List<Model.Person> GetAll(CancellationToken cancellationToken);
-    Model.Person GetById(int id, CancellationToken cancellationToken);
-    void Add(Model.Person person, CancellationToken cancellationToken);
-    void Update(Model.Person person, CancellationToken cancellationToken);
-    void DeleteById(int id, CancellationToken cancellationToken);
+    Task<bool> Exists(int id, CancellationToken cancellationToken);
+    Task<List<Model.Person>> GetAll(CancellationToken cancellationToken);
+    Task<Model.Person> GetById(int id, CancellationToken cancellationToken);
+    Task<Model.Person> TryAdd(Model.Person person, CancellationToken cancellationToken);
+    Task<Model.Person> TryUpdate(Model.Person person, CancellationToken cancellationToken);
+    Task<bool> TryDeleteById(int id, CancellationToken cancellationToken);
 }

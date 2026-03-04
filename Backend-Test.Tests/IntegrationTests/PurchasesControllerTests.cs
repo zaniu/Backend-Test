@@ -143,6 +143,40 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
     }
 
     [Fact]
+    public async Task Add_WithNonPositiveId_ReturnsBadRequestFromValidationPipeline()
+    {
+        // Arrange
+        using var client = CreateClient();
+        await PostAsync(client, "/persons", new AddPersonRequest(1020, "Buyer", "Validation", 1992));
+        await PostAsync(client, "/products", new AddProductRequest(2020, "Valid Product", "Type", 1m));
+
+        // Act
+        var response = await PostAsync(client, "/purchases", new AddPurchaseRequest(0, 1020, [2020]));
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        var wrapper = await ReadAsJsonAsync<ApiResponse<object>>(response);
+        wrapper.Errors.Should().NotBeNullOrEmpty();
+        wrapper.Errors.Should().Contain(error => error.Contains("Id"));
+    }
+
+    [Fact]
+    public async Task Add_WithEmptyProducts_ReturnsBadRequestFromValidationPipeline()
+    {
+        // Arrange
+        using var client = CreateClient();
+        await PostAsync(client, "/persons", new AddPersonRequest(1021, "Buyer", "Validation", 1992));
+
+        // Act
+        var response = await PostAsync(client, "/purchases", new AddPurchaseRequest(3021, 1021, []));
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        var wrapper = await ReadAsJsonAsync<ApiResponse<object>>(response);
+        wrapper.Errors.Should().Contain(error => error.Contains("At least one product is required"));
+    }
+
+    [Fact]
     public async Task Delete_WithExistingId_ReturnsNoContent()
     {
         // Arrange

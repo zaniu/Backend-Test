@@ -20,7 +20,7 @@ public class GetAllPersonsHandlerTests
         var repositoryMock = new Mock<IPersonRepository>();
         repositoryMock
             .Setup(repository => repository.GetAll(It.IsAny<CancellationToken>()))
-            .Returns(persons);
+            .ReturnsAsync(persons);
         var handler = new GetAllPersonsHandler(repositoryMock.Object);
 
         // Act

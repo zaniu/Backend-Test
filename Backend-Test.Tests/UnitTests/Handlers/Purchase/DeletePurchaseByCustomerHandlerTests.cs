@@ -15,15 +15,15 @@ public class DeletePurchaseByCustomerHandlerTests
         // Arrange
         var repositoryMock = new Mock<IPurchaseRepository>();
         repositoryMock
-            .Setup(repository => repository.GetByCustomerId(1, It.IsAny<CancellationToken>()))
-            .Returns([new Model.Purchase(1, 1, [1, 2]), new Model.Purchase(2, 1, [3])]);
+            .Setup(repository => repository.TryDeleteByCustomerId(1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
         var handler = new DeletePurchaseByCustomerHandler(repositoryMock.Object);
 
         // Act
         await handler.Handle(new DeletePurchaseByCustomerRequest(1), CancellationToken.None);
 
         // Assert
-        repositoryMock.Verify(repository => repository.DeleteByCustomerId(1, It.IsAny<CancellationToken>()), Times.Once);
+        repositoryMock.Verify(repository => repository.TryDeleteByCustomerId(1, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -32,8 +32,8 @@ public class DeletePurchaseByCustomerHandlerTests
         // Arrange
         var repositoryMock = new Mock<IPurchaseRepository>();
         repositoryMock
-            .Setup(repository => repository.GetByCustomerId(999, It.IsAny<CancellationToken>()))
-            .Returns([]);
+            .Setup(repository => repository.TryDeleteByCustomerId(999, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
         var handler = new DeletePurchaseByCustomerHandler(repositoryMock.Object);
 
         // Act
@@ -41,6 +41,6 @@ public class DeletePurchaseByCustomerHandlerTests
 
         // Assert
         await act.Should().ThrowAsync<NotFoundException>().WithMessage("Item does not exist");
-        repositoryMock.Verify(repository => repository.DeleteByCustomerId(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
+        repositoryMock.Verify(repository => repository.TryDeleteByCustomerId(999, It.IsAny<CancellationToken>()), Times.Once);
     }
 }

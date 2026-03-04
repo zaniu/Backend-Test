@@ -15,17 +15,16 @@ public class UpdateProductHandler : IRequestHandler<UpdateProductRequest, Update
         _productRepository = productRepository;
     }
 
-    public Task<UpdateProductResponse> Handle(UpdateProductRequest request, CancellationToken cancellationToken)
+    public async Task<UpdateProductResponse> Handle(UpdateProductRequest request, CancellationToken cancellationToken)
     {
-        var existingProduct = _productRepository.GetById(request.Id, cancellationToken);
-        if (existingProduct == null)
+        var updatedProduct = new Model.Product(request.Id, request.Name, request.Type, request.Price);
+        var persistedProduct = await _productRepository.TryUpdate(updatedProduct, cancellationToken);
+
+        if (persistedProduct == null)
         {
             throw new NotFoundException();
         }
 
-        var updatedProduct = new Model.Product(request.Id, request.Name, request.Type, request.Price);
-        _productRepository.Update(updatedProduct, cancellationToken);
-
-        return Task.FromResult(new UpdateProductResponse(updatedProduct));
+        return new UpdateProductResponse(persistedProduct);
     }
 }

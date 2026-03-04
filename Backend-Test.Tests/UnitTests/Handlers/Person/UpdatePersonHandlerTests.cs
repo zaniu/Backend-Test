@@ -15,8 +15,12 @@ public class UpdatePersonHandlerTests
         // Arrange
         var repositoryMock = new Mock<IPersonRepository>();
         repositoryMock
-            .Setup(repository => repository.GetById(2, It.IsAny<CancellationToken>()))
-            .Returns(new Model.Person(2, "Old", "Name", 1980));
+            .Setup(repository => repository.TryUpdate(It.Is<Model.Person>(person =>
+                person.Id == 2 &&
+                person.Firstname == "Updated" &&
+                person.Lastname == "Person" &&
+                person.YearOfBirth == 1988), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Model.Person person, CancellationToken _) => person);
         var handler = new UpdatePersonHandler(repositoryMock.Object);
 
         // Act
@@ -25,7 +29,7 @@ public class UpdatePersonHandlerTests
         // Assert
         response.Id.Should().Be(2);
         response.Firstname.Should().Be("Updated");
-        repositoryMock.Verify(repository => repository.Update(It.Is<Model.Person>(person =>
+        repositoryMock.Verify(repository => repository.TryUpdate(It.Is<Model.Person>(person =>
             person.Id == 2 &&
             person.Firstname == "Updated" &&
             person.Lastname == "Person" &&
@@ -37,9 +41,6 @@ public class UpdatePersonHandlerTests
     {
         // Arrange
         var repositoryMock = new Mock<IPersonRepository>();
-        repositoryMock
-            .Setup(repository => repository.GetById(1, It.IsAny<CancellationToken>()))
-            .Returns(new Model.Person(1, "John", "Doe", 1980));
         var handler = new UpdatePersonHandler(repositoryMock.Object);
 
         // Act
@@ -49,6 +50,6 @@ public class UpdatePersonHandlerTests
 
         // Assert
         await act.Should().ThrowAsync<DomainModelException>().WithMessage("Customer can not be born after current year");
-        repositoryMock.Verify(repository => repository.Update(It.IsAny<Model.Person>(), It.IsAny<CancellationToken>()), Times.Never);
+        repositoryMock.Verify(repository => repository.TryUpdate(It.IsAny<Model.Person>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

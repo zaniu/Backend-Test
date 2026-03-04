@@ -14,8 +14,9 @@ public class GetAllProductsHandler : IRequestHandler<GetAllProductsRequest, GetA
         _productRepository = productRepository;
     }
 
-    public Task<GetAllProductsResponse> Handle(GetAllProductsRequest request, CancellationToken cancellationToken)
+    public async Task<GetAllProductsResponse> Handle(GetAllProductsRequest request, CancellationToken cancellationToken)
     {
-        return Task.FromResult(new GetAllProductsResponse(_productRepository.GetAll(cancellationToken)));
+        var products = await _productRepository.GetAll(cancellationToken);
+        return new GetAllProductsResponse(products);
     }
 }

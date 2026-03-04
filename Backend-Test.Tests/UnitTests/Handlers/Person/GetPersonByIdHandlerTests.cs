@@ -16,7 +16,7 @@ public class GetPersonByIdHandlerTests
         var repositoryMock = new Mock<IPersonRepository>();
         repositoryMock
             .Setup(repository => repository.GetById(1, It.IsAny<CancellationToken>()))
-            .Returns(new Model.Person(1, "John", "Doe", 1980));
+            .ReturnsAsync(new Model.Person(1, "John", "Doe", 1980));
         var handler = new GetPersonByIdHandler(repositoryMock.Object);
 
         // Act
@@ -34,7 +34,7 @@ public class GetPersonByIdHandlerTests
         var repositoryMock = new Mock<IPersonRepository>();
         repositoryMock
             .Setup(repository => repository.GetById(999, It.IsAny<CancellationToken>()))
-            .Returns((Model.Person)null);
+            .ReturnsAsync((Model.Person)null);
         var handler = new GetPersonByIdHandler(repositoryMock.Object);
 
         // Act

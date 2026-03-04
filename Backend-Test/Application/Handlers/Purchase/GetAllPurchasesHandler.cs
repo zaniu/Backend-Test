@@ -14,8 +14,9 @@ public class GetAllPurchasesHandler : IRequestHandler<GetAllPurchasesRequest, Ge
         _purchaseRepository = purchaseRepository;
     }
 
-    public Task<GetAllPurchasesResponse> Handle(GetAllPurchasesRequest request, CancellationToken cancellationToken)
+    public async Task<GetAllPurchasesResponse> Handle(GetAllPurchasesRequest request, CancellationToken cancellationToken)
     {
-        return Task.FromResult(new GetAllPurchasesResponse(_purchaseRepository.GetAll(cancellationToken)));
+        var purchases = await _purchaseRepository.GetAll(cancellationToken);
+        return new GetAllPurchasesResponse(purchases);
     }
 }

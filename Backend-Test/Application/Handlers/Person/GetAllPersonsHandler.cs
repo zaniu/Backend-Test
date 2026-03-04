@@ -14,8 +14,9 @@ public class GetAllPersonsHandler : IRequestHandler<GetAllPersonsRequest, GetAll
         _personRepository = personRepository;
     }
 
-    public Task<GetAllPersonsResponse> Handle(GetAllPersonsRequest request, CancellationToken cancellationToken)
+    public async Task<GetAllPersonsResponse> Handle(GetAllPersonsRequest request, CancellationToken cancellationToken)
     {
-        return Task.FromResult(new GetAllPersonsResponse(_personRepository.GetAll(cancellationToken)));
+        var persons = await _personRepository.GetAll(cancellationToken);
+        return new GetAllPersonsResponse(persons);
     }
 }

@@ -15,8 +15,8 @@ public class AddPersonHandlerTests
         // Arrange
         var repositoryMock = new Mock<IPersonRepository>();
         repositoryMock
-            .Setup(repository => repository.Exists(999, It.IsAny<CancellationToken>()))
-            .Returns(false);
+            .Setup(repository => repository.TryAdd(It.IsAny<Model.Person>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Model.Person person, CancellationToken _) => person);
         var handler = new AddPersonHandler(repositoryMock.Object);
 
         // Act
@@ -24,7 +24,7 @@ public class AddPersonHandlerTests
 
         // Assert
         response.Id.Should().Be(999);
-        repositoryMock.Verify(repository => repository.Add(It.Is<Model.Person>(person =>
+        repositoryMock.Verify(repository => repository.TryAdd(It.Is<Model.Person>(person =>
             person.Id == 999 &&
             person.Firstname == "Unit" &&
             person.Lastname == "Tester" &&
@@ -37,8 +37,8 @@ public class AddPersonHandlerTests
         // Arrange
         var repositoryMock = new Mock<IPersonRepository>();
         repositoryMock
-            .Setup(repository => repository.Exists(1, It.IsAny<CancellationToken>()))
-            .Returns(true);
+            .Setup(repository => repository.TryAdd(It.IsAny<Model.Person>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Model.Person)null);
         var handler = new AddPersonHandler(repositoryMock.Object);
 
         // Act
@@ -46,7 +46,7 @@ public class AddPersonHandlerTests
 
         // Assert
         await act.Should().ThrowAsync<DuplicateException>().WithMessage("Item already exists");
-        repositoryMock.Verify(repository => repository.Add(It.IsAny<Model.Person>(), It.IsAny<CancellationToken>()), Times.Never);
+        repositoryMock.Verify(repository => repository.TryAdd(It.IsAny<Model.Person>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -54,9 +54,6 @@ public class AddPersonHandlerTests
     {
         // Arrange
         var repositoryMock = new Mock<IPersonRepository>();
-        repositoryMock
-            .Setup(repository => repository.Exists(1001, It.IsAny<CancellationToken>()))
-            .Returns(false);
         var handler = new AddPersonHandler(repositoryMock.Object);
 
         // Act
@@ -66,6 +63,6 @@ public class AddPersonHandlerTests
 
         // Assert
         await act.Should().ThrowAsync<DomainModelException>().WithMessage("Customer can not be born after current year");
-        repositoryMock.Verify(repository => repository.Add(It.IsAny<Model.Person>(), It.IsAny<CancellationToken>()), Times.Never);
+        repositoryMock.Verify(repository => repository.TryAdd(It.IsAny<Model.Person>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

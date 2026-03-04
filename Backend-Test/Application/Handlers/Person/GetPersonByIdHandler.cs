@@ -15,14 +15,14 @@ public class GetPersonByIdHandler : IRequestHandler<GetPersonByIdRequest, GetPer
         _personRepository = personRepository;
     }
 
-    public Task<GetPersonByIdResponse> Handle(GetPersonByIdRequest request, CancellationToken cancellationToken)
+    public async Task<GetPersonByIdResponse> Handle(GetPersonByIdRequest request, CancellationToken cancellationToken)
     {
-        var person = _personRepository.GetById(request.Id, cancellationToken);
+        var person = await _personRepository.GetById(request.Id, cancellationToken);
         if (person == null)
         {
             throw new NotFoundException();
         }
 
-        return Task.FromResult(new GetPersonByIdResponse(person));
+        return new GetPersonByIdResponse(person);
     }
 }

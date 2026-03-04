@@ -15,13 +15,8 @@ public class AddProductHandler : IRequestHandler<AddProductRequest, AddProductRe
         _productRepository = productRepository;
     }
 
-    public Task<AddProductResponse> Handle(AddProductRequest request, CancellationToken cancellationToken)
+    public async Task<AddProductResponse> Handle(AddProductRequest request, CancellationToken cancellationToken)
     {
-        if (_productRepository.Exists(request.Id, cancellationToken))
-        {
-            throw new DuplicateException();
-        }
-
         var product = new Model.Product(
             request.Id,
             request.Name,
@@ -29,7 +24,12 @@ public class AddProductHandler : IRequestHandler<AddProductRequest, AddProductRe
             request.Price
         );
 
-        _productRepository.Add(product, cancellationToken);
-        return Task.FromResult(new AddProductResponse(product));
+        var persistedProduct = await _productRepository.TryAdd(product, cancellationToken);
+        if (persistedProduct == null)
+        {
+            throw new DuplicateException();
+        }
+
+        return new AddProductResponse(persistedProduct);
     }
 }

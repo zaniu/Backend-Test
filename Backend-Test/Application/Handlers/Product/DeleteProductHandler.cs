@@ -16,22 +16,19 @@ public class DeleteProductHandler : IRequestHandler<DeleteProductRequest, Unit>
         _purchaseRepository = purchaseRepository;
     }
 
-    public Task<Unit> Handle(DeleteProductRequest request, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(DeleteProductRequest request, CancellationToken cancellationToken)
     {
-        if (_productRepository.Exists(request.Id, cancellationToken))
+        if (await _purchaseRepository.ExistsByProductId(request.Id, cancellationToken))
         {
-            if (_purchaseRepository.ExistsByProductId(request.Id, cancellationToken))
-            {
-                throw new DomainModelException("Cannot delete product with existing purchases");
-            }
-
-            _productRepository.DeleteById(request.Id, cancellationToken);
+            throw new DomainModelException("Cannot delete product with existing purchases");
         }
-        else
+
+        var wasDeleted = await _productRepository.TryDeleteById(request.Id, cancellationToken);
+        if (!wasDeleted)
         {
             throw new NotFoundException();
         }
 
-        return Unit.Task;
+        return Unit.Value;
     }
 }

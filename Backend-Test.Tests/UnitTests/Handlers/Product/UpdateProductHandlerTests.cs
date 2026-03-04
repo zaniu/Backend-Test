@@ -15,8 +15,12 @@ public class UpdateProductHandlerTests
         // Arrange
         var repositoryMock = new Mock<IProductRepository>();
         repositoryMock
-            .Setup(repository => repository.GetById(2, It.IsAny<CancellationToken>()))
-            .Returns(new Model.Product(2, "Old", "OldType", 5.00m));
+            .Setup(repository => repository.TryUpdate(It.Is<Model.Product>(product =>
+                product.Id == 2 &&
+                product.Name == "Updated Product" &&
+                product.Type == "Updated" &&
+                product.Price == 44.3m), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Model.Product product, CancellationToken _) => product);
         var handler = new UpdateProductHandler(repositoryMock.Object);
 
         // Act
@@ -25,7 +29,7 @@ public class UpdateProductHandlerTests
         // Assert
         response.Id.Should().Be(2);
         response.Name.Should().Be("Updated Product");
-        repositoryMock.Verify(repository => repository.Update(It.Is<Model.Product>(product =>
+        repositoryMock.Verify(repository => repository.TryUpdate(It.Is<Model.Product>(product =>
             product.Id == 2 &&
             product.Name == "Updated Product" &&
             product.Type == "Updated" &&
@@ -38,8 +42,8 @@ public class UpdateProductHandlerTests
         // Arrange
         var repositoryMock = new Mock<IProductRepository>();
         repositoryMock
-            .Setup(repository => repository.GetById(999, It.IsAny<CancellationToken>()))
-            .Returns((Model.Product)null);
+            .Setup(repository => repository.TryUpdate(It.IsAny<Model.Product>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Model.Product)null);
         var handler = new UpdateProductHandler(repositoryMock.Object);
 
         // Act
@@ -47,6 +51,6 @@ public class UpdateProductHandlerTests
 
         // Assert
         await act.Should().ThrowAsync<NotFoundException>().WithMessage("Item does not exist");
-        repositoryMock.Verify(repository => repository.Update(It.IsAny<Model.Product>(), It.IsAny<CancellationToken>()), Times.Never);
+        repositoryMock.Verify(repository => repository.TryUpdate(It.IsAny<Model.Product>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

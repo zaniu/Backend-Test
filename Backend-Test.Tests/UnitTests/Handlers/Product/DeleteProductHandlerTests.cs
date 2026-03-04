@@ -15,19 +15,19 @@ public class DeleteProductHandlerTests
         // Arrange
         var repositoryMock = new Mock<IProductRepository>();
         var purchaseRepositoryMock = new Mock<IPurchaseRepository>();
-        repositoryMock
-            .Setup(repository => repository.Exists(3, It.IsAny<CancellationToken>()))
-            .Returns(true);
         purchaseRepositoryMock
             .Setup(repository => repository.ExistsByProductId(3, It.IsAny<CancellationToken>()))
-            .Returns(false);
+            .ReturnsAsync(false);
+        repositoryMock
+            .Setup(repository => repository.TryDeleteById(3, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
         var handler = new DeleteProductHandler(repositoryMock.Object, purchaseRepositoryMock.Object);
 
         // Act
         await handler.Handle(new DeleteProductRequest(3), CancellationToken.None);
 
         // Assert
-        repositoryMock.Verify(repository => repository.DeleteById(3, It.IsAny<CancellationToken>()), Times.Once);
+        repositoryMock.Verify(repository => repository.TryDeleteById(3, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -36,9 +36,12 @@ public class DeleteProductHandlerTests
         // Arrange
         var repositoryMock = new Mock<IProductRepository>();
         var purchaseRepositoryMock = new Mock<IPurchaseRepository>();
+        purchaseRepositoryMock
+            .Setup(repository => repository.ExistsByProductId(999, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
         repositoryMock
-            .Setup(repository => repository.Exists(999, It.IsAny<CancellationToken>()))
-            .Returns(false);
+            .Setup(repository => repository.TryDeleteById(999, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
         var handler = new DeleteProductHandler(repositoryMock.Object, purchaseRepositoryMock.Object);
 
         // Act
@@ -46,7 +49,7 @@ public class DeleteProductHandlerTests
 
         // Assert
         await act.Should().ThrowAsync<NotFoundException>().WithMessage("Item does not exist");
-        repositoryMock.Verify(repository => repository.DeleteById(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
+        repositoryMock.Verify(repository => repository.TryDeleteById(999, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -55,12 +58,9 @@ public class DeleteProductHandlerTests
         // Arrange
         var repositoryMock = new Mock<IProductRepository>();
         var purchaseRepositoryMock = new Mock<IPurchaseRepository>();
-        repositoryMock
-            .Setup(repository => repository.Exists(3, It.IsAny<CancellationToken>()))
-            .Returns(true);
         purchaseRepositoryMock
             .Setup(repository => repository.ExistsByProductId(3, It.IsAny<CancellationToken>()))
-            .Returns(true);
+            .ReturnsAsync(true);
         var handler = new DeleteProductHandler(repositoryMock.Object, purchaseRepositoryMock.Object);
 
         // Act
@@ -68,6 +68,6 @@ public class DeleteProductHandlerTests
 
         // Assert
         await act.Should().ThrowAsync<DomainModelException>().WithMessage("Cannot delete product with existing purchases");
-        repositoryMock.Verify(repository => repository.DeleteById(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
+        repositoryMock.Verify(repository => repository.TryDeleteById(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

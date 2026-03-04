@@ -15,14 +15,14 @@ public class GetProductByIdHandler : IRequestHandler<GetProductByIdRequest, GetP
         _productRepository = productRepository;
     }
 
-    public Task<GetProductByIdResponse> Handle(GetProductByIdRequest request, CancellationToken cancellationToken)
+    public async Task<GetProductByIdResponse> Handle(GetProductByIdRequest request, CancellationToken cancellationToken)
     {
-        var product = _productRepository.GetById(request.Id, cancellationToken);
+        var product = await _productRepository.GetById(request.Id, cancellationToken);
         if (product == null)
         {
             throw new NotFoundException();
         }
 
-        return Task.FromResult(new GetProductByIdResponse(product));
+        return new GetProductByIdResponse(product);
     }
 }

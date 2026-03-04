@@ -15,13 +15,8 @@ public class AddPersonHandler : IRequestHandler<AddPersonRequest, AddPersonRespo
         _personRepository = personRepository;
     }
 
-    public Task<AddPersonResponse> Handle(AddPersonRequest request, CancellationToken cancellationToken)
+    public async Task<AddPersonResponse> Handle(AddPersonRequest request, CancellationToken cancellationToken)
     {
-        if (_personRepository.Exists(request.Id, cancellationToken))
-        {
-            throw new DuplicateException();
-        }
-
         var person = new Model.Person(
             request.Id,
             request.Firstname,
@@ -29,7 +24,12 @@ public class AddPersonHandler : IRequestHandler<AddPersonRequest, AddPersonRespo
             request.YearOfBirth
         );
 
-        _personRepository.Add(person, cancellationToken);
-        return Task.FromResult(new AddPersonResponse(person));
+        var persistedPerson = await _personRepository.TryAdd(person, cancellationToken);
+        if (persistedPerson == null)
+        {
+            throw new DuplicateException();
+        }
+
+        return new AddPersonResponse(persistedPerson);
     }
 }

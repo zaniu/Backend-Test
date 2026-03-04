@@ -15,17 +15,16 @@ public class UpdatePersonHandler : IRequestHandler<UpdatePersonRequest, UpdatePe
         _personRepository = personRepository;
     }
 
-    public Task<UpdatePersonResponse> Handle(UpdatePersonRequest request, CancellationToken cancellationToken)
+    public async Task<UpdatePersonResponse> Handle(UpdatePersonRequest request, CancellationToken cancellationToken)
     {
-        var existingPerson = _personRepository.GetById(request.Id, cancellationToken);
-        if (existingPerson == null)
+        var updatedPerson = new Model.Person(request.Id, request.Firstname, request.Lastname, request.YearOfBirth);
+        var persistedPerson = await _personRepository.TryUpdate(updatedPerson, cancellationToken);
+
+        if (persistedPerson == null)
         {
             throw new NotFoundException();
         }
 
-        var updatedPerson = new Model.Person(request.Id, request.Firstname, request.Lastname, request.YearOfBirth);
-        _personRepository.Update(updatedPerson, cancellationToken);
-
-        return Task.FromResult(new UpdatePersonResponse(updatedPerson));
+        return new UpdatePersonResponse(persistedPerson);
     }
 }
