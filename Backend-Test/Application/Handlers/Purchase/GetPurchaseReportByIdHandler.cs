@@ -61,7 +61,13 @@ public class GetPurchaseReportByIdHandler : IRequestHandler<GetPurchaseReportByI
             var reportGenerator = _reportGeneratorFactory.Create(reportFormat);
             var report = reportGenerator.Generate(reportData);
 
-            return await _reportRepository.TryAdd(report, cancellationToken);
+            var addedReport = await _reportRepository.TryAdd(report, cancellationToken);
+            
+            if (addedReport == null)
+            {
+                throw new DomainModelException("Failed to add report to repository");
+            }
+            return addedReport;
         }
         finally
         {
