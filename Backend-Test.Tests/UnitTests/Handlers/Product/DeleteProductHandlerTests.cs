@@ -52,6 +52,7 @@ public class DeleteProductHandlerTests
     [Fact]
     public async Task Handle_WithExistingPurchases_ThrowsException()
     {
+        // Arrange
         var repositoryMock = new Mock<IProductRepository>();
         var purchaseRepositoryMock = new Mock<IPurchaseRepository>();
         repositoryMock
@@ -62,8 +63,10 @@ public class DeleteProductHandlerTests
             .Returns(true);
         var handler = new DeleteProductHandler(repositoryMock.Object, purchaseRepositoryMock.Object);
 
+        // Act
         var act = async () => await handler.Handle(new DeleteProductRequest(3), CancellationToken.None);
 
+        // Assert
         await act.Should().ThrowAsync<DomainModelException>().WithMessage("Cannot delete product with existing purchases");
         repositoryMock.Verify(repository => repository.DeleteById(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
     }

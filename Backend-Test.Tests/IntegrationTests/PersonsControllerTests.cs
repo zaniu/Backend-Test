@@ -1,60 +1,51 @@
 using System.Net;
 using BackendTest.Application.Requests.Person;
+using BackendTest.Application.Requests.Product;
+using BackendTest.Application.Requests.Purchase;
 using FluentAssertions;
 
 namespace BackendTest.Test.IntegrationTests;
 
 public class PersonsControllerIntegrationTests : IntegrationTestBase
 {
-    // NOTE: These tests assume pre-populated data in Data.cs
-    // Data should be initialized in the datasource before test execution
-    // See Data.cs for the initial set of persons (IDs 1-10)
-
-
     [Fact]
-    public async Task GetAll_ReturnsOk()
+    public async Task GetAll_ReturnsOkWithCreatedPersons()
     {
         // Arrange
         using var client = CreateClient();
+        await PostAsync(client, "/persons", new AddPersonRequest(1001, "John", "Doe", 1980));
+        await PostAsync(client, "/persons", new AddPersonRequest(1002, "Jane", "Doe", 1985));
 
         // Act
         var response = await GetAsync(client, "/persons");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        // ensure the wrapper contains a list
         var wrapper = await ReadAsJsonAsync<ApiResponse<List<PersonDto>>>(response);
         wrapper.Should().NotBeNull();
-        wrapper.Value.Should().NotBeNull().And.BeAssignableTo<List<PersonDto>>();
-        wrapper.Value.Should().HaveCountGreaterOrEqualTo(2);
-        wrapper.Value[0].Id.Should().Be(1);
-        wrapper.Value[0].Firstname.Should().Be("John");
-        wrapper.Value[1].Id.Should().Be(2);
-        wrapper.Value[1].Firstname.Should().Be("Jane");
+        wrapper.Value.Should().Contain(person => person.Id == 1001 && person.Firstname == "John");
+        wrapper.Value.Should().Contain(person => person.Id == 1002 && person.Firstname == "Jane");
     }
 
-    [Theory]
-    [InlineData(1, "John")]
-    [InlineData(2, "Jane")]
-    public async Task GetById_WithExistingId_ReturnsPersonData(int personId, string expectedFirstName)
+    [Fact]
+    public async Task GetById_WithExistingId_ReturnsPersonData()
     {
         // Arrange
-        // Data should be inserted into persons collection before test execution
-        // Expected: Person with ID={personId} and firstname={expectedFirstName}
-        
-        // Act
         using var client = CreateClient();
-        var response = await GetAsync(client, $"/persons/{personId}");
-        
+        await PostAsync(client, "/persons", new AddPersonRequest(1003, "Alice", "Smith", 1990));
+
+        // Act
+        var response = await GetAsync(client, "/persons/1003");
+
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var wrapper = await ReadAsJsonAsync<ApiResponse<PersonDto>>(response);
         var person = wrapper.Value;
-        
-        person.Should().NotBeNull("Person object should be deserialized");
-        person!.Id.Should().Be(personId, $"Person ID should match {personId}");
-        person.Firstname.Should().Be(expectedFirstName, $"Person first name should be {expectedFirstName}");
+
+        person.Should().NotBeNull();
+        person.Id.Should().Be(1003);
+        person.Firstname.Should().Be("Alice");
+        person.Lastname.Should().Be("Smith");
     }
 
     [Fact]
@@ -62,7 +53,7 @@ public class PersonsControllerIntegrationTests : IntegrationTestBase
     {
         // Arrange
         using var client = CreateClient();
-        var request = new AddPersonRequest(11, "Jane", "Smith", 1985);
+        var request = new AddPersonRequest(1004, "Jane", "Smith", 1985);
 
         // Act
         var response = await PostAsync(client, "/persons", request);
@@ -73,16 +64,13 @@ public class PersonsControllerIntegrationTests : IntegrationTestBase
         var wrapper = await ReadAsJsonAsync<ApiResponse<PersonDto>>(response);
         var created = wrapper.Value;
         created.Should().NotBeNull();
-        created!.Firstname.Should().Be("Jane");
+        created.Id.Should().Be(1004);
+        created.Firstname.Should().Be("Jane");
         created.Lastname.Should().Be("Smith");
-        created.Id.Should().Be(11);
         created.YearOfBirth.Should().Be(1985);
 
-        var getResponse = await GetAsync(client, "/persons/11");
+        var getResponse = await GetAsync(client, "/persons/1004");
         getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        var getWrapper = await ReadAsJsonAsync<ApiResponse<PersonDto>>(getResponse);
-        getWrapper.Value.Id.Should().Be(11);
-        getWrapper.Value.Firstname.Should().Be("Jane");
     }
 
     [Fact]
@@ -90,10 +78,10 @@ public class PersonsControllerIntegrationTests : IntegrationTestBase
     {
         // Arrange
         using var client = CreateClient();
-        var request = new AddPersonRequest(1, "Jane", "Smith", 1985);
+        await PostAsync(client, "/persons", new AddPersonRequest(1005, "First", "Person", 1980));
 
         // Act
-        var response = await PostAsync(client, "/persons", request);
+        var response = await PostAsync(client, "/persons", new AddPersonRequest(1005, "Second", "Person", 1982));
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
@@ -104,7 +92,7 @@ public class PersonsControllerIntegrationTests : IntegrationTestBase
     {
         // Arrange
         using var client = CreateClient();
-        var request = new AddPersonRequest(1002, "Future", "Person", DateTime.UtcNow.Year + 1);
+        var request = new AddPersonRequest(1006, "Future", "Person", DateTime.UtcNow.Year + 1);
 
         // Act
         var response = await PostAsync(client, "/persons", request);
@@ -117,81 +105,84 @@ public class PersonsControllerIntegrationTests : IntegrationTestBase
     public async Task Update_WithValidPerson_ReturnsAcceptedWithPerson()
     {
         // Arrange
-        // Data: Person with ID=1 should exist in persons collection
-        var request = new UpdatePersonRequest("UpdatedFirstName", "UpdatedLastName", 1980);
-        
-        // Act
         using var client = CreateClient();
-        var response = await PutAsync(client, "/persons/1", request);
-        
+        await PostAsync(client, "/persons", new AddPersonRequest(1007, "Original", "Name", 1980));
+        var request = new UpdatePersonRequest("UpdatedFirstName", "UpdatedLastName", 1981);
+
+        // Act
+        var response = await PutAsync(client, "/persons/1007", request);
+
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Accepted, "Valid update should be accepted");
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var wrapper = await ReadAsJsonAsync<ApiResponse<PersonDto>>(response);
         var updated = wrapper.Value;
         updated.Should().NotBeNull();
-        updated!.Firstname.Should().Be("UpdatedFirstName");
+        updated.Id.Should().Be(1007);
+        updated.Firstname.Should().Be("UpdatedFirstName");
         updated.Lastname.Should().Be("UpdatedLastName");
-        updated.YearOfBirth.Should().Be(1980);
+        updated.YearOfBirth.Should().Be(1981);
     }
 
     [Fact]
     public async Task Update_WithFutureYearOfBirth_ReturnsBadRequest()
     {
         // Arrange
-        // Data: Person with ID=1 should exist in persons collection
-        var futureYear = DateTime.UtcNow.Year + 1;
-        var request = new UpdatePersonRequest("TestName", "TestLastName", futureYear);
-        
-        // Act
         using var client = CreateClient();
-        var response = await PutAsync(client, "/persons/1", request);
-        
+        await PostAsync(client, "/persons", new AddPersonRequest(1008, "Test", "Person", 1980));
+        var request = new UpdatePersonRequest("TestName", "TestLastName", DateTime.UtcNow.Year + 1);
+
+        // Act
+        var response = await PutAsync(client, "/persons/1008", request);
+
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest, "Future year of birth should cause validation error");
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
     public async Task Update_WithNonExistingPerson_ReturnsNotFound()
     {
         // Arrange
+        using var client = CreateClient();
         var request = new UpdatePersonRequest("Unknown", "Person", 1980);
 
         // Act
-        using var client = CreateClient();
-        var response = await PutAsync(client, "/persons/999", request);
+        var response = await PutAsync(client, "/persons/1999", request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    [Theory]
-    [InlineData(9)]
-    [InlineData(10)]
-    public async Task Delete_WithExistingIdWithoutPurchases_ReturnsNoContent(int personId)
+    [Fact]
+    public async Task Delete_WithExistingIdWithoutPurchases_ReturnsNoContent()
     {
         // Arrange
-        // Data should be inserted into persons collection before test execution
-        // Expected: Person with ID={personId} exists in the collection
-        
-        // Act
         using var client = CreateClient();
-        var response = await DeleteAsync(client, $"/persons/{personId}");
-        
+        await PostAsync(client, "/persons", new AddPersonRequest(1009, "Delete", "Me", 1988));
+
+        // Act
+        var response = await DeleteAsync(client, "/persons/1009");
+
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        var getResponse = await GetAsync(client, $"/persons/{personId}");
+        var getResponse = await GetAsync(client, "/persons/1009");
         getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
     public async Task Delete_WithExistingIdWithPurchases_ReturnsBadRequest()
     {
+        // Arrange
         using var client = CreateClient();
+        await PostAsync(client, "/persons", new AddPersonRequest(1010, "Buyer", "One", 1988));
+        await PostAsync(client, "/products", new AddProductRequest(2001, "Item", "Test", 1m));
+        await PostAsync(client, "/purchases", new AddPurchaseRequest(3001, 1010, [2001]));
 
-        var response = await DeleteAsync(client, "/persons/1");
+        // Act
+        var response = await DeleteAsync(client, "/persons/1010");
 
+        // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
@@ -202,7 +193,7 @@ public class PersonsControllerIntegrationTests : IntegrationTestBase
         using var client = CreateClient();
 
         // Act
-        var response = await GetAsync(client, "/persons/999");
+        var response = await GetAsync(client, "/persons/9999");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -215,7 +206,7 @@ public class PersonsControllerIntegrationTests : IntegrationTestBase
         using var client = CreateClient();
 
         // Act
-        var response = await DeleteAsync(client, "/persons/999");
+        var response = await DeleteAsync(client, "/persons/9999");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);

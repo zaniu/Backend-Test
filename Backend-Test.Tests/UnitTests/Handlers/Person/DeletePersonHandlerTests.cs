@@ -52,6 +52,7 @@ public class DeletePersonHandlerTests
     [Fact]
     public async Task Handle_WithExistingPurchases_ThrowsException()
     {
+        // Arrange
         var repositoryMock = new Mock<IPersonRepository>();
         var purchaseRepositoryMock = new Mock<IPurchaseRepository>();
         repositoryMock
@@ -62,8 +63,10 @@ public class DeletePersonHandlerTests
             .Returns(true);
         var handler = new DeletePersonHandler(repositoryMock.Object, purchaseRepositoryMock.Object);
 
+        // Act
         var act = async () => await handler.Handle(new DeletePersonRequest(3), CancellationToken.None);
 
+        // Assert
         await act.Should().ThrowAsync<DomainModelException>().WithMessage("Cannot delete person with existing purchases");
         repositoryMock.Verify(repository => repository.DeleteById(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
     }

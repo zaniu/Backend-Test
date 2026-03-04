@@ -1,6 +1,5 @@
 using System.Text;
 using System.Text.Json;
-using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace BackendTest.Test.IntegrationTests;
 
@@ -9,7 +8,7 @@ public abstract class IntegrationTestBase
     // create a new application and client per call so tests never share state
     protected HttpClient CreateClient()
     {
-        var factory = new WebApplicationFactory<Program>();
+        var factory = new TestWebApplicationFactory();
         return factory.CreateClient();
     }
 
