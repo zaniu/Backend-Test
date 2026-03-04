@@ -36,15 +36,32 @@ public class PurchasesController : ControllerBase
         return Ok(new SingleItemResponse<GetPurchaseByCustomerIdResponse>(response));
     }
 
-    /// <summary>
-    /// Generates a CSV report of a purchase, including a list of purchased items, their prices, the total expenditure, and customer information.
-    /// </summary>
-    /// <param name="id">The id of the Purchase order</param>
-    [HttpGet("{id}/report")]
+    [HttpPost("{purchaseId}/report")]
+    [ProducesResponseType(StatusCodes.Status302Found)]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(SingleItemResponse<object>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(SingleItemResponse<object>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleItemResponse<object>))]
-    public async Task<ActionResult<byte[]>> GetPurchaseReportById(int id)
+    public async Task<ActionResult> GetPurchaseReportById(int purchaseId)
     {
-        throw new NotImplementedException("Please implement me!");
+        var response = await _mediator.Send(new GetPurchaseReportByIdRequest(purchaseId));
+        if (!string.IsNullOrWhiteSpace(response.DownloadUrl))
+        {
+            return Redirect(response.DownloadUrl);
+        }
+
+        return RedirectToAction(nameof(DownloadReportById), new { purchaseId = response.PurchaseId, reportId = response.ReportId });
+    }
+
+    [HttpGet("{purchaseId}/reports/{reportId}")]
+    [Produces("text/csv")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(SingleItemResponse<object>))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleItemResponse<object>))]
+    public async Task<ActionResult<byte[]>> DownloadReportById(int purchaseId, Guid reportId)
+    {
+        var request = new DownloadPurchaseReportRequest(purchaseId, reportId);
+        var report = await _mediator.Send(request);
+        return File(report.Content, report.ContentType, report.FileName);
     }
 
     [HttpPost]

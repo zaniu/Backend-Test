@@ -1,4 +1,5 @@
 using System.Net;
+using Microsoft.AspNetCore.Mvc.Testing;
 using BackendTest.Application.Requests.Person;
 using BackendTest.Application.Requests.Product;
 using BackendTest.Application.Requests.Purchase;
@@ -244,15 +245,81 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
     }
 
     [Fact]
-    public async Task GetPurchaseReportById_ReturnsInternalServerError()
+    public async Task GetPurchaseReportById_WithNonExistingPurchase_ReturnsNotFound()
     {
         // Arrange
         using var client = CreateClient();
 
         // Act
-        var response = await GetAsync(client, "/purchases/1/report");
+        var response = await PostAsync(client, "/purchases/1/report");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task GetPurchaseReportById_WithExistingPurchase_ReturnsRedirectToDownloadEndpoint()
+    {
+        // Arrange
+        using var factory = new TestWebApplicationFactory();
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false
+        });
+
+        await PostAsync(client, "/persons", new AddPersonRequest(1111, "Report", "Customer", 1990));
+        await PostAsync(client, "/products", new AddProductRequest(2111, "Report Product", "Type", 7m));
+        await PostAsync(client, "/purchases", new AddPurchaseRequest(3111, 1111, [new PurchaseProductItemRequest(2111, 2)]));
+
+        // Act
+        var response = await PostAsync(client, "/purchases/3111/report");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.Headers.Location.Should().NotBeNull();
+        response.Headers.Location!.ToString().Should().MatchRegex("^/purchases/3111/reports/[0-9a-fA-F-]{36}$");
+    }
+
+    [Fact]
+    public async Task DownloadReportById_WithExistingReport_ReturnsCsvFile()
+    {
+        // Arrange
+        using var factory = new TestWebApplicationFactory();
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false
+        });
+
+        await PostAsync(client, "/persons", new AddPersonRequest(1112, "Report", "Downloader", 1991));
+        await PostAsync(client, "/products", new AddProductRequest(2112, "Download Product", "Type", 9m));
+        await PostAsync(client, "/purchases", new AddPurchaseRequest(3112, 1112, [new PurchaseProductItemRequest(2112, 1)]));
+
+        var createResponse = await PostAsync(client, "/purchases/3112/report");
+        var reportUrl = createResponse.Headers.Location!.ToString();
+
+        // Act
+        var response = await GetAsync(client, reportUrl);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.Content.Headers.ContentType!.MediaType.Should().Be("text/csv");
+        response.Content.Headers.ContentDisposition.Should().NotBeNull();
+
+        var csv = await ReadAsStringAsync(response);
+        csv.Should().Contain("ProductId,Count,ProductName,Price");
+        csv.Should().Contain("Download Product");
+    }
+
+    [Fact]
+    public async Task DownloadReportById_WithNonExistingReport_ReturnsNotFound()
+    {
+        // Arrange
+        using var client = CreateClient();
+
+        // Act
+        var response = await GetAsync(client, $"/purchases/999/reports/{Guid.CreateVersion7()}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 }

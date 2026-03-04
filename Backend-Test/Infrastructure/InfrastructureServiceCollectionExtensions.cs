@@ -8,6 +8,8 @@ public static class InfrastructureServiceCollectionExtensions
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
         services.AddSingleton<Data>();
+        services.AddSingleton<IReportDownloadLinkProvider, InMemoryReportDownloadLinkProvider>();
+        services.AddSingleton<IReportRepository, ReportRepository>();
         services.AddTransient<IPersonRepository, PersonRepository>();
         services.AddTransient<IProductRepository, ProductRepository>();
         services.AddTransient<IPurchaseRepository, PurchaseRepository>();

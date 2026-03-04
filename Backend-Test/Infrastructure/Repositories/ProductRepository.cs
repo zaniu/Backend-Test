@@ -27,6 +27,12 @@ public class ProductRepository : IProductRepository
         return Task.FromResult(_data.products.ToList());
     }
 
+    public Task<List<Model.Product>> GetByIds(IEnumerable<int> ids, CancellationToken cancellationToken)
+    {
+        var idsSet = ids.ToHashSet();
+        return Task.FromResult(_data.products.Where(product => idsSet.Contains(product.Id)).ToList());
+    }
+
     public Task<Model.Product> GetById(int id, CancellationToken cancellationToken)
     {
         return Task.FromResult(_data.products.FirstOrDefault(product => product.Id == id));

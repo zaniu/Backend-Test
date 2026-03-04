@@ -23,21 +23,21 @@ public class Data
 
     public List<Product> products =
     [
-        new Product { Id = 1, Name = "Pipe Wrench", Type = "Plumbing" },
-        new Product { Id = 2, Name = "Electric Drill", Type = "Electric" },
-        new Product { Id = 3, Name = "Garden Hose", Type = "Gardening" },
-        new Product { Id = 4, Name = "Toilet Plunger", Type = "Plumbing" },
-        new Product { Id = 5, Name = "Electric Screwdriver", Type = "Electric" },
-        new Product { Id = 6, Name = "Garden Shovel", Type = "Gardening" },
-        new Product { Id = 7, Name = "Faucet", Type = "Plumbing" },
-        new Product { Id = 8, Name = "Electric Saw", Type = "Electric" },
-        new Product { Id = 9, Name = "Garden Gloves", Type = "Gardening" },
-        new Product { Id = 10, Name = "Pipe Cutter", Type = "Plumbing" }
+        new Product { Id = 1, Name = "Pipe Wrench", Type = "Plumbing", Price = 19.99m },
+        new Product { Id = 2, Name = "Electric Drill", Type = "Electric", Price = 49.99m },
+        new Product { Id = 3, Name = "Garden Hose", Type = "Gardening", Price = 29.99m },
+        new Product { Id = 4, Name = "Toilet Plunger", Type = "Plumbing", Price = 9.99m },
+        new Product { Id = 5, Name = "Electric Screwdriver", Type = "Electric", Price = 39.99m },
+        new Product { Id = 6, Name = "Garden Shovel", Type = "Gardening", Price = 24.99m },
+        new Product { Id = 7, Name = "Faucet", Type = "Plumbing", Price = 14.99m },
+        new Product { Id = 8, Name = "Electric Saw", Type = "Electric", Price = 59.99m },
+        new Product { Id = 9, Name = "Garden Gloves", Type = "Gardening", Price = 12.99m },
+        new Product { Id = 10, Name = "Pipe Cutter", Type = "Plumbing", Price = 19.99m }
     ];
 
     public List<Purchase> purchases =
     [
-        new Purchase(1, 1, [new PurchaseProductItem(1, 1)]),
+        new Purchase(1, 1, [new PurchaseProductItem(1, 1), new PurchaseProductItem(2, 1)]),
         new Purchase(2, 1, [new PurchaseProductItem(2, 1)]),
         new Purchase(3, 1, [new PurchaseProductItem(3, 1)]),
         new Purchase(4, 2, [new PurchaseProductItem(4, 1)]),
@@ -77,4 +77,6 @@ public class Data
         new Purchase(38, 6, [new PurchaseProductItem(4, 1)]),
         new Purchase(39, 6, [new PurchaseProductItem(7, 1)])
     ];
+
+    public List<Report> reports = [];
 }

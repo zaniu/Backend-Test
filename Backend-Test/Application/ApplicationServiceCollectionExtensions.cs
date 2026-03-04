@@ -1,4 +1,5 @@
 using BackendTest.Application.Behaviors;
+using BackendTest.Application.Reporting;
 using BackendTest.Application.Validators;
 using FluentValidation;
 
@@ -9,6 +10,9 @@ public static class ApplicationServiceCollectionExtensions
     public static IServiceCollection AddBackendTestApplication(this IServiceCollection services)
     {
         services.AddValidatorsFromAssembly(typeof(ValidatorsAssemblyMarker).Assembly);
+        services.AddTransient<IPurchaseReportDataSource, DefaultPurchaseReportDataSource>();
+        services.AddTransient<IPurchaseReportGenerator, CsvPurchaseReportGenerator>();
+        services.AddSingleton<IPurchaseReportGeneratorFactory, PurchaseReportGeneratorFactory>();
 
         services.AddMediatR(cfg =>
         {
