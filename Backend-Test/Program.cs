@@ -1,71 +1,13 @@
 using BackendTest.Application;
-using BackendTest.Application.Repositories;
+using BackendTest.Extensions;
 using BackendTest.Infrastructure;
-using BackendTest.Infrastructure.Repositories;
-using BackendTest.Middleware;
-using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-WebApplication app = ConfigureServices(builder);
-Configure(app);
+builder.Services
+    .AddInfrastructure()
+    .AddBackendTestApplication()
+    .AddPresentation(builder.Configuration, builder.Environment);
+
+var app = builder.Build();
+app.UsePresentation();
 app.Run();
-
-static WebApplication ConfigureServices(WebApplicationBuilder builder)
-{
-    var envSection = builder.Configuration.GetSection("EnvironmentConfiguration");
-    var envConfig = envSection.Get<BackendTest.Model.Environment>() ?? new BackendTest.Model.Environment();
-    envConfig.IsProduction = builder.Environment.IsProduction();
-    builder.Services.Configure((BackendTest.Model.Environment config) =>
-    {
-        config.ApiVersion = envConfig.ApiVersion;
-        config.UiVersion = envConfig.UiVersion;
-        config.IsProduction = envConfig.IsProduction;
-    });
-
-
-    builder.Services.Configure<BackendTest.Model.Environment>(builder.Configuration.GetSection("EnvironmentConfiguration"));
-    builder.Services.PostConfigure((BackendTest.Model.Environment config) =>
-    {
-        config.IsProduction = builder.Environment.IsProduction();
-    });
-
-    builder.Services.AddSingleton<Data>();
-    builder.Services.AddTransient<IPersonRepository, PersonRepository>();
-    builder.Services.AddTransient<IProductRepository, ProductRepository>();
-    builder.Services.AddTransient<IPurchaseRepository, PurchaseRepository>();
-
-    builder.Services.AddBackendTestApplication();
-
-    builder.Services.AddControllers();
-    builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen(c =>
-    {
-        c.SwaggerDoc("v1", new OpenApiInfo
-        {
-            Title = "BackendTest",
-            Version = envConfig.ApiVersion
-        });
-    });
-
-    var app = builder.Build();
-    return app;
-}
-
-static void Configure(WebApplication app)
-{
-    app.UseMiddleware<ExceptionHandlingMiddleware>();
-
-    if (app.Environment.IsDevelopment())
-    {
-        app.UseSwagger();
-        app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BackendTest v1"));
-    }
-
-    if (!app.Environment.IsDevelopment())
-    {
-        app.UseHttpsRedirection();
-    }
-    app.UseAuthorization();
-
-    app.MapControllers();
-}

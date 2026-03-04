@@ -4,7 +4,7 @@ using FluentValidation;
 
 namespace BackendTest.Application;
 
-public static class BackendTestApplication
+public static class ApplicationServiceCollectionExtensions
 {
     public static IServiceCollection AddBackendTestApplication(this IServiceCollection services)
     {
@@ -12,7 +12,7 @@ public static class BackendTestApplication
 
         services.AddMediatR(cfg =>
         {
-            cfg.RegisterServicesFromAssembly(typeof(BackendTestApplication).Assembly);
+            cfg.RegisterServicesFromAssembly(typeof(ApplicationServiceCollectionExtensions).Assembly);
             cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
             cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
