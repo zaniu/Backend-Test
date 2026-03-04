@@ -1,6 +1,6 @@
 ﻿using BackendTest.Model;
 
-namespace BackendTest;
+namespace BackendTest.Infrastructure;
 
 /// <summary>
 /// NOT PART OF TEST. MERELY TO SUPPLY DATA

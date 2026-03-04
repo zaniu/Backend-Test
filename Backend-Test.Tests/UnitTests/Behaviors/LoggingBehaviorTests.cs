@@ -11,14 +11,17 @@ public class LoggingBehaviorTests
     [Fact]
     public async Task Handle_ShouldLogStartAndExecutionInfo()
     {
+        // Arrange
         var loggerMock = new Mock<ILogger<LoggingBehavior<TestRequest, string>>>();
         var behavior = new LoggingBehavior<TestRequest, string>(loggerMock.Object);
 
+        // Act
         var response = await behavior.Handle(
             new TestRequest("sample"),
             () => Task.FromResult("done"),
             CancellationToken.None);
 
+        // Assert
         response.Should().Be("done");
 
         VerifyLog(loggerMock, LogLevel.Information, "Starting handler TestRequest", Times.Once());
@@ -28,9 +31,11 @@ public class LoggingBehaviorTests
     [Fact]
     public async Task Handle_WithSlowExecution_ShouldLogWarning()
     {
+        // Arrange
         var loggerMock = new Mock<ILogger<LoggingBehavior<TestRequest, string>>>();
         var behavior = new LoggingBehavior<TestRequest, string>(loggerMock.Object);
 
+        // Act
         await behavior.Handle(
             new TestRequest("slow"),
             async () =>
@@ -40,6 +45,7 @@ public class LoggingBehaviorTests
             },
             CancellationToken.None);
 
+        // Assert
         VerifyLog(loggerMock, LogLevel.Warning, "execution exceeded 500ms", Times.Once());
     }
 

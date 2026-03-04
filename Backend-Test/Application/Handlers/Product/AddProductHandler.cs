@@ -1,4 +1,5 @@
 using BackendTest.Application.Requests.Product;
+using BackendTest.Application.Repositories;
 using BackendTest.Application.Responses.Product;
 using BackendTest.Exceptions;
 using MediatR;
@@ -7,16 +8,16 @@ namespace BackendTest.Application.Handlers.Product;
 
 public class AddProductHandler : IRequestHandler<AddProductRequest, AddProductResponse>
 {
-    private readonly Data _data;
+    private readonly IProductRepository _productRepository;
 
-    public AddProductHandler(Data data)
+    public AddProductHandler(IProductRepository productRepository)
     {
-        _data = data;
+        _productRepository = productRepository;
     }
 
     public Task<AddProductResponse> Handle(AddProductRequest request, CancellationToken cancellationToken)
     {
-        if (_data.products.Any(p => p.Id == request.Id))
+        if (_productRepository.Exists(request.Id, cancellationToken))
         {
             throw new DuplicateException();
         }
@@ -28,7 +29,7 @@ public class AddProductHandler : IRequestHandler<AddProductRequest, AddProductRe
             request.Price
         );
 
-        _data.products.Add(product);
+        _productRepository.Add(product, cancellationToken);
         return Task.FromResult(new AddProductResponse(product));
     }
 }

@@ -1,7 +1,8 @@
-using BackendTest;
 using BackendTest.Application.Handlers.Product;
 using BackendTest.Application.Requests.Product;
+using BackendTest.Application.Repositories;
 using FluentAssertions;
+using Moq;
 
 namespace BackendTest.Test.UnitTests.Handlers.Product;
 
@@ -10,11 +11,23 @@ public class GetAllProductsHandlerTests
     [Fact]
     public async Task Handle_ReturnsAllCurrentProducts()
     {
-        var data = new Data();
-        var handler = new GetAllProductsHandler(data);
+        // Arrange
+        var products = new List<Model.Product>
+        {
+            new(1, "Pipe Wrench", "Tools", 20.00m),
+            new(2, "Screwdriver", "Tools", 10.00m)
+        };
+        var repositoryMock = new Mock<IProductRepository>();
+        repositoryMock
+            .Setup(repository => repository.GetAll(It.IsAny<CancellationToken>()))
+            .Returns(products);
+        var handler = new GetAllProductsHandler(repositoryMock.Object);
 
+        // Act
         var response = await handler.Handle(new GetAllProductsRequest(), CancellationToken.None);
 
-        response.Products.Should().HaveCount(data.products.Count);
+        // Assert
+        response.Products.Should().HaveCount(2);
+        response.Products.Should().Contain(product => product.Id == 1 && product.Name == "Pipe Wrench");
     }
 }

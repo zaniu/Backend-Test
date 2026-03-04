@@ -1,5 +1,7 @@
-using BackendTest;
 using BackendTest.Application;
+using BackendTest.Application.Repositories;
+using BackendTest.Infrastructure;
+using BackendTest.Infrastructure.Repositories;
 using BackendTest.Middleware;
 using Microsoft.OpenApi.Models;
 
@@ -28,7 +30,9 @@ static WebApplication ConfigureServices(WebApplicationBuilder builder)
     });
 
     builder.Services.AddSingleton<Data>();
-    builder.Services.AddTransient<HelperUtils>();
+    builder.Services.AddTransient<IPersonRepository, PersonRepository>();
+    builder.Services.AddTransient<IProductRepository, ProductRepository>();
+    builder.Services.AddTransient<IPurchaseRepository, PurchaseRepository>();
 
     builder.Services.AddBackendTestApplication();
 

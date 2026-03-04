@@ -1,4 +1,5 @@
 using BackendTest.Application.Requests.Product;
+using BackendTest.Application.Repositories;
 using BackendTest.Application.Responses.Product;
 using BackendTest.Exceptions;
 using MediatR;
@@ -7,32 +8,24 @@ namespace BackendTest.Application.Handlers.Product;
 
 public class UpdateProductHandler : IRequestHandler<UpdateProductRequest, UpdateProductResponse>
 {
-    private readonly Data _data;
-    private readonly HelperUtils _helper;
+    private readonly IProductRepository _productRepository;
 
-    public UpdateProductHandler(Data data, HelperUtils helper)
+    public UpdateProductHandler(IProductRepository productRepository)
     {
-        _data = data;
-        _helper = helper;
+        _productRepository = productRepository;
     }
 
     public Task<UpdateProductResponse> Handle(UpdateProductRequest request, CancellationToken cancellationToken)
     {
-        if (!_helper.ProductExists(request.Id))
+        var existingProduct = _productRepository.GetById(request.Id, cancellationToken);
+        if (existingProduct == null)
         {
             throw new NotFoundException();
         }
 
-        var existingProductIndex = _data.products.FindIndex(p => p.Id == request.Id);
-        if (existingProductIndex != -1)
-        {
-            _data.products[existingProductIndex] = new Model.Product(request.Id, request.Name, request.Type, request.Price);
-        }
-        else
-        {
-            throw new NotFoundException();
-        }
+        var updatedProduct = new Model.Product(request.Id, request.Name, request.Type, request.Price);
+        _productRepository.Update(updatedProduct, cancellationToken);
 
-        return Task.FromResult(new UpdateProductResponse(_data.products[existingProductIndex]));
+        return Task.FromResult(new UpdateProductResponse(updatedProduct));
     }
 }

@@ -1,4 +1,5 @@
 using BackendTest.Application.Requests.Person;
+using BackendTest.Application.Repositories;
 using BackendTest.Application.Responses.Person;
 using BackendTest.Exceptions;
 using MediatR;
@@ -7,34 +8,24 @@ namespace BackendTest.Application.Handlers.Person;
 
 public class UpdatePersonHandler : IRequestHandler<UpdatePersonRequest, UpdatePersonResponse>
 {
-    private readonly Data _data;
-    private readonly HelperUtils _helper;
+    private readonly IPersonRepository _personRepository;
 
-    public UpdatePersonHandler(Data data, HelperUtils helper)
+    public UpdatePersonHandler(IPersonRepository personRepository)
     {
-        _data = data;
-        _helper = helper;
+        _personRepository = personRepository;
     }
 
     public Task<UpdatePersonResponse> Handle(UpdatePersonRequest request, CancellationToken cancellationToken)
     {
-        if (!_helper.PersonExists(request.Id))
+        var existingPerson = _personRepository.GetById(request.Id, cancellationToken);
+        if (existingPerson == null)
         {
             throw new NotFoundException();
         }
 
-        var existingPerson = _data.persons.Single(p => p.Id == request.Id);
-        if (existingPerson != null)
-        {
-            existingPerson.Firstname = request.Firstname;
-            existingPerson.Lastname = request.Lastname;
-            existingPerson.YearOfBirth = request.YearOfBirth;
-        }
-        else 
-        {
-            throw new NotFoundException();
-        }
+        var updatedPerson = new Model.Person(request.Id, request.Firstname, request.Lastname, request.YearOfBirth);
+        _personRepository.Update(updatedPerson, cancellationToken);
 
-        return Task.FromResult(new UpdatePersonResponse(existingPerson));
+        return Task.FromResult(new UpdatePersonResponse(updatedPerson));
     }
 }

@@ -1,7 +1,9 @@
 using BackendTest.Application.Handlers.Person;
 using BackendTest.Application.Requests.Person;
+using BackendTest.Application.Repositories;
 using BackendTest.Exceptions;
 using FluentAssertions;
+using Moq;
 
 namespace BackendTest.Test.UnitTests.Handlers.Person;
 
@@ -11,39 +13,51 @@ public class AddPersonHandlerTests
     public async Task Handle_WithNewId_AddsPerson()
     {
         // Arrange
-        var data = new Data();
-        var handler = new AddPersonHandler(data);
-        var initialCount = data.persons.Count;
+        var repositoryMock = new Mock<IPersonRepository>();
+        repositoryMock
+            .Setup(repository => repository.Exists(999, It.IsAny<CancellationToken>()))
+            .Returns(false);
+        var handler = new AddPersonHandler(repositoryMock.Object);
 
         // Act
         var response = await handler.Handle(new AddPersonRequest(999, "Unit", "Tester", 1990), CancellationToken.None);
 
         // Assert
         response.Id.Should().Be(999);
-        data.persons.Should().HaveCount(initialCount + 1);
-        data.persons.Should().Contain(p => p.Id == 999 && p.Firstname == "Unit");
+        repositoryMock.Verify(repository => repository.Add(It.Is<Model.Person>(person =>
+            person.Id == 999 &&
+            person.Firstname == "Unit" &&
+            person.Lastname == "Tester" &&
+            person.YearOfBirth == 1990), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task Handle_WithDuplicateId_ThrowsException()
     {
         // Arrange
-        var data = new Data();
-        var handler = new AddPersonHandler(data);
+        var repositoryMock = new Mock<IPersonRepository>();
+        repositoryMock
+            .Setup(repository => repository.Exists(1, It.IsAny<CancellationToken>()))
+            .Returns(true);
+        var handler = new AddPersonHandler(repositoryMock.Object);
 
         // Act
         var act = async () => await handler.Handle(new AddPersonRequest(1, "John", "Dup", 1980), CancellationToken.None);
 
         // Assert
         await act.Should().ThrowAsync<DuplicateException>().WithMessage("Item already exists");
+        repositoryMock.Verify(repository => repository.Add(It.IsAny<Model.Person>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
     public async Task Handle_WithFutureYear_ThrowsDomainModelException()
     {
         // Arrange
-        var data = new Data();
-        var handler = new AddPersonHandler(data);
+        var repositoryMock = new Mock<IPersonRepository>();
+        repositoryMock
+            .Setup(repository => repository.Exists(1001, It.IsAny<CancellationToken>()))
+            .Returns(false);
+        var handler = new AddPersonHandler(repositoryMock.Object);
 
         // Act
         var act = async () => await handler.Handle(
@@ -52,5 +66,6 @@ public class AddPersonHandlerTests
 
         // Assert
         await act.Should().ThrowAsync<DomainModelException>().WithMessage("Customer can not be born after current year");
+        repositoryMock.Verify(repository => repository.Add(It.IsAny<Model.Person>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

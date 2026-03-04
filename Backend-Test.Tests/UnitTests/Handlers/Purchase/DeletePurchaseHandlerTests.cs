@@ -1,7 +1,9 @@
 using BackendTest.Application.Handlers.Purchase;
 using BackendTest.Application.Requests.Purchase;
+using BackendTest.Application.Repositories;
 using BackendTest.Exceptions;
 using FluentAssertions;
+using Moq;
 
 namespace BackendTest.Test.UnitTests.Handlers.Purchase;
 
@@ -10,22 +12,35 @@ public class DeletePurchaseHandlerTests
     [Fact]
     public async Task Handle_WithExistingId_RemovesPurchase()
     {
-        var data = new Data();
-        var handler = new DeletePurchaseHandler(data, new HelperUtils(data));
+        // Arrange
+        var repositoryMock = new Mock<IPurchaseRepository>();
+        repositoryMock
+            .Setup(repository => repository.Exists(1, It.IsAny<CancellationToken>()))
+            .Returns(true);
+        var handler = new DeletePurchaseHandler(repositoryMock.Object);
 
+        // Act
         await handler.Handle(new DeletePurchaseRequest(1), CancellationToken.None);
 
-        data.purchases.Should().NotContain(p => p.Id == 1);
+        // Assert
+        repositoryMock.Verify(repository => repository.DeleteById(1, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task Handle_WithMissingId_ThrowsException()
     {
-        var data = new Data();
-        var handler = new DeletePurchaseHandler(data, new HelperUtils(data));
+        // Arrange
+        var repositoryMock = new Mock<IPurchaseRepository>();
+        repositoryMock
+            .Setup(repository => repository.Exists(999, It.IsAny<CancellationToken>()))
+            .Returns(false);
+        var handler = new DeletePurchaseHandler(repositoryMock.Object);
 
+        // Act
         var act = async () => await handler.Handle(new DeletePurchaseRequest(999), CancellationToken.None);
 
+        // Assert
         await act.Should().ThrowAsync<NotFoundException>().WithMessage("Item does not exist");
+        repositoryMock.Verify(repository => repository.DeleteById(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

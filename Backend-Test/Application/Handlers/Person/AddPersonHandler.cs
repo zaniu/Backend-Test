@@ -1,4 +1,5 @@
 using BackendTest.Application.Requests.Person;
+using BackendTest.Application.Repositories;
 using BackendTest.Application.Responses.Person;
 using BackendTest.Exceptions;
 using MediatR;
@@ -7,16 +8,16 @@ namespace BackendTest.Application.Handlers.Person;
 
 public class AddPersonHandler : IRequestHandler<AddPersonRequest, AddPersonResponse>
 {
-    private readonly Data _data;
+    private readonly IPersonRepository _personRepository;
 
-    public AddPersonHandler(Data data)
+    public AddPersonHandler(IPersonRepository personRepository)
     {
-        _data = data;
+        _personRepository = personRepository;
     }
 
     public Task<AddPersonResponse> Handle(AddPersonRequest request, CancellationToken cancellationToken)
     {
-        if(_data.persons.Any(p => p.Id == request.Id))
+        if(_personRepository.Exists(request.Id, cancellationToken))
         {
             throw new DuplicateException();
         }
@@ -28,7 +29,7 @@ public class AddPersonHandler : IRequestHandler<AddPersonRequest, AddPersonRespo
             request.YearOfBirth
         );
 
-        _data.persons.Add(person);
+        _personRepository.Add(person, cancellationToken);
         return Task.FromResult(new AddPersonResponse(person));
     }
 }

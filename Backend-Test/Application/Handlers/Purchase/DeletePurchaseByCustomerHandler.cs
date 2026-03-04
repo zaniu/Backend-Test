@@ -1,4 +1,5 @@
 using BackendTest.Application.Requests.Purchase;
+using BackendTest.Application.Repositories;
 using BackendTest.Exceptions;
 using MediatR;
 
@@ -6,23 +7,23 @@ namespace BackendTest.Application.Handlers.Purchase;
 
 public class DeletePurchaseByCustomerHandler : IRequestHandler<DeletePurchaseByCustomerRequest, Unit>
 {
-    private readonly Data _data;
+    private readonly IPurchaseRepository _purchaseRepository;
 
-    public DeletePurchaseByCustomerHandler(Data data)
+    public DeletePurchaseByCustomerHandler(IPurchaseRepository purchaseRepository)
     {
-        _data = data;
+        _purchaseRepository = purchaseRepository;
     }
 
     public Task<Unit> Handle(DeletePurchaseByCustomerRequest request, CancellationToken cancellationToken)
     {
-        var purchase = _data.purchases.FirstOrDefault(s => s.CustomerId == request.CustomerId);
+        var purchase = _purchaseRepository.GetByCustomerId(request.CustomerId, cancellationToken);
 
         if (purchase == null)
         {
             throw new NotFoundException();
         }
 
-        _data.purchases.Remove(purchase!);
+        _purchaseRepository.DeleteByCustomerId(request.CustomerId, cancellationToken);
         return Task.FromResult(Unit.Value);
     }
 }

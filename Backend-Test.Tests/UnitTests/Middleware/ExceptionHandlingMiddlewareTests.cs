@@ -14,6 +14,7 @@ public class ExceptionHandlingMiddlewareTests
     [Fact]
     public async Task InvokeAsync_WhenNoException_ShouldCallNext()
     {
+        // Arrange
         var wasCalled = false;
         var middleware = new ExceptionHandlingMiddleware(_ =>
         {
@@ -23,16 +24,20 @@ public class ExceptionHandlingMiddlewareTests
 
         var context = new DefaultHttpContext();
 
+        // Act
         await middleware.InvokeAsync(context);
 
+        // Assert
         wasCalled.Should().BeTrue();
     }
 
     [Fact]
     public async Task InvokeAsync_WhenNotFoundException_ShouldReturn404WithEnvelope()
     {
+        // Arrange & Act
         var context = await InvokeAndCaptureResponseAsync(new NotFoundException());
 
+        // Assert
         context.Response.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         context.Response.ContentType.Should().Be("application/json");
 
@@ -48,13 +53,16 @@ public class ExceptionHandlingMiddlewareTests
     [Fact]
     public async Task InvokeAsync_WhenValidationException_ShouldReturn400WithValidationErrors()
     {
+        // Arrange
         var failures = new List<ValidationFailure>
         {
             new(nameof(TestRequest.YearOfBirth), "Customer can not be born after current year")
         };
 
+        // Act
         var context = await InvokeAndCaptureResponseAsync(new ValidationException(failures), "trace-400");
 
+        // Assert
         context.Response.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
 
         var body = await ReadResponseBodyAsync(context);
@@ -68,8 +76,10 @@ public class ExceptionHandlingMiddlewareTests
     [Fact]
     public async Task InvokeAsync_WhenUnhandledException_ShouldReturn500()
     {
+        // Arrange & Act
         var context = await InvokeAndCaptureResponseAsync(new Exception("boom"), "trace-500");
 
+        // Assert
         context.Response.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
 
         var body = await ReadResponseBodyAsync(context);

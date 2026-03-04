@@ -1,4 +1,5 @@
 using BackendTest.Application.Requests.Person;
+using BackendTest.Application.Repositories;
 using BackendTest.Exceptions;
 using MediatR;
 
@@ -6,20 +7,18 @@ namespace BackendTest.Application.Handlers.Person;
 
 public class DeletePersonHandler : IRequestHandler<DeletePersonRequest, Unit>
 {
-    private readonly Data _data;
-    private readonly HelperUtils _helper;
+    private readonly IPersonRepository _personRepository;
 
-    public DeletePersonHandler(Data data, HelperUtils helper)
+    public DeletePersonHandler(IPersonRepository personRepository)
     {
-        _data = data;
-        _helper = helper;
+        _personRepository = personRepository;
     }
 
     public Task<Unit> Handle(DeletePersonRequest request, CancellationToken cancellationToken)
     {
-        if (_helper.PersonExists(request.Id))
+        if (_personRepository.Exists(request.Id, cancellationToken))
         {
-            _data.persons.Remove(_data.persons.First(s => s.Id == request.Id));
+            _personRepository.DeleteById(request.Id, cancellationToken);
         }
         else
         {

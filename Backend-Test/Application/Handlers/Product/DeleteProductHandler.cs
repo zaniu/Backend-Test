@@ -1,4 +1,5 @@
 using BackendTest.Application.Requests.Product;
+using BackendTest.Application.Repositories;
 using BackendTest.Exceptions;
 using MediatR;
 
@@ -6,20 +7,18 @@ namespace BackendTest.Application.Handlers.Product;
 
 public class DeleteProductHandler : IRequestHandler<DeleteProductRequest, Unit>
 {
-    private readonly Data _data;
-    private readonly HelperUtils _helper;
+    private readonly IProductRepository _productRepository;
 
-    public DeleteProductHandler(Data data, HelperUtils helper)
+    public DeleteProductHandler(IProductRepository productRepository)
     {
-        _data = data;
-        _helper = helper;
+        _productRepository = productRepository;
     }
 
     public Task<Unit> Handle(DeleteProductRequest request, CancellationToken cancellationToken)
     {
-        if (_helper.ProductExists(request.Id))
+        if (_productRepository.Exists(request.Id, cancellationToken))
         {
-            _data.products.Remove(_data.products.First(s => s.Id == request.Id));
+            _productRepository.DeleteById(request.Id, cancellationToken);
         }
         else
         {

@@ -10,9 +10,11 @@ public class ValidationBehaviorTests
     [Fact]
     public async Task Handle_WithNoValidators_ShouldInvokeNext()
     {
+        // Arrange
         var behavior = new ValidationBehavior<TestRequest, string>(Enumerable.Empty<IValidator<TestRequest>>());
         var wasNextCalled = false;
 
+        // Act
         var response = await behavior.Handle(
             new TestRequest("ok"),
             () =>
@@ -22,6 +24,7 @@ public class ValidationBehaviorTests
             },
             CancellationToken.None);
 
+        // Assert
         response.Should().Be("done");
         wasNextCalled.Should().BeTrue();
     }
@@ -29,10 +32,12 @@ public class ValidationBehaviorTests
     [Fact]
     public async Task Handle_WithValidRequest_ShouldInvokeNext()
     {
+        // Arrange
         var validators = new IValidator<TestRequest>[] { new TestRequestValidator() };
         var behavior = new ValidationBehavior<TestRequest, string>(validators);
         var wasNextCalled = false;
 
+        // Act
         var response = await behavior.Handle(
             new TestRequest("valid"),
             () =>
@@ -42,6 +47,7 @@ public class ValidationBehaviorTests
             },
             CancellationToken.None);
 
+        // Assert
         response.Should().Be("done");
         wasNextCalled.Should().BeTrue();
     }
@@ -49,10 +55,12 @@ public class ValidationBehaviorTests
     [Fact]
     public async Task Handle_WithInvalidRequest_ShouldThrowValidationException()
     {
+        // Arrange
         var validators = new IValidator<TestRequest>[] { new TestRequestValidator() };
         var behavior = new ValidationBehavior<TestRequest, string>(validators);
         var wasNextCalled = false;
 
+        // Act
         Func<Task> act = async () => await behavior.Handle(
             new TestRequest(string.Empty),
             () =>
@@ -62,6 +70,7 @@ public class ValidationBehaviorTests
             },
             CancellationToken.None);
 
+        // Assert
         var exception = await act.Should().ThrowAsync<ValidationException>();
 
         exception.Which.Errors.Should().Contain(error => error.PropertyName == nameof(TestRequest.Name));

@@ -1,4 +1,6 @@
-﻿namespace BackendTest;
+﻿using BackendTest.Infrastructure;
+
+namespace BackendTest;
 
 public class HelperUtils
 {

@@ -1,7 +1,9 @@
 using BackendTest.Application.Handlers.Product;
 using BackendTest.Application.Requests.Product;
+using BackendTest.Application.Repositories;
 using BackendTest.Exceptions;
 using FluentAssertions;
+using Moq;
 
 namespace BackendTest.Test.UnitTests.Handlers.Product;
 
@@ -10,11 +12,17 @@ public class GetProductByIdHandlerTests
     [Fact]
     public async Task Handle_WithExistingId_ReturnsProduct()
     {
-        var data = new Data();
-        var handler = new GetProductByIdHandler(data, new HelperUtils(data));
+        // Arrange
+        var repositoryMock = new Mock<IProductRepository>();
+        repositoryMock
+            .Setup(repository => repository.GetById(1, It.IsAny<CancellationToken>()))
+            .Returns(new Model.Product(1, "Pipe Wrench", "Tools", 20.00m));
+        var handler = new GetProductByIdHandler(repositoryMock.Object);
 
+        // Act
         var response = await handler.Handle(new GetProductByIdRequest(1), CancellationToken.None);
 
+        // Assert
         response.Id.Should().Be(1);
         response.Name.Should().Be("Pipe Wrench");
     }
@@ -22,11 +30,17 @@ public class GetProductByIdHandlerTests
     [Fact]
     public async Task Handle_WithMissingId_ThrowsException()
     {
-        var data = new Data();
-        var handler = new GetProductByIdHandler(data, new HelperUtils(data));
+        // Arrange
+        var repositoryMock = new Mock<IProductRepository>();
+        repositoryMock
+            .Setup(repository => repository.GetById(999, It.IsAny<CancellationToken>()))
+            .Returns((Model.Product)null);
+        var handler = new GetProductByIdHandler(repositoryMock.Object);
 
+        // Act
         var act = async () => await handler.Handle(new GetProductByIdRequest(999), CancellationToken.None);
 
+        // Assert
         await act.Should().ThrowAsync<NotFoundException>().WithMessage("Item does not exist");
     }
 }
