@@ -16,6 +16,16 @@ public class PurchaseRepository : IPurchaseRepository
         return _data.purchases.Any(purchase => purchase.Id == id);
     }
 
+    public bool ExistsByCustomerId(int customerId, CancellationToken cancellationToken)
+    {
+        return _data.purchases.Any(purchase => purchase.CustomerId == customerId);
+    }
+
+    public bool ExistsByProductId(int productId, CancellationToken cancellationToken)
+    {
+        return _data.purchases.Any(purchase => purchase.ProductsIds.Contains(productId));
+    }
+
     public List<Model.Purchase> GetAll(CancellationToken cancellationToken)
     {
         return _data.purchases;

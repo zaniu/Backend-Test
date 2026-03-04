@@ -58,7 +58,7 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
     }
 
     [Fact]
-    public async Task GetByCustomerId_WithNonExistingCustomerId_ReturnsNotFound()
+    public async Task GetByCustomerId_WithNonExistingCustomerId_ReturnsEmptyPurchases()
     {
         // Arrange
         using var client = CreateClient();
@@ -67,7 +67,9 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
         var response = await GetAsync(client, "/purchases/customer/999");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var wrapper = await ReadAsJsonAsync<ApiResponse<PurchasesByCustomerDto>>(response);
+        wrapper.Value.Purchases.Should().BeEmpty();
     }
 
     [Fact]
@@ -75,7 +77,7 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
     {
         // Arrange
         using var client = CreateClient();
-        var request = new AddPurchaseRequest(100, 999, [1, 2]);
+        var request = new AddPurchaseRequest(100, 1, [1, 2]);
 
         // Act
         var response = await PostAsync(client, "/purchases", request);
@@ -86,13 +88,35 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
         var created = wrapper.Value;
         created.Should().NotBeNull();
         created!.Id.Should().Be(100);
-        created.CustomerId.Should().Be(999);
+        created.CustomerId.Should().Be(1);
         created.ProductsIds.Should().Contain([1, 2]);
 
-        var getResponse = await GetAsync(client, "/purchases/customer/999");
+        var getResponse = await GetAsync(client, "/purchases/customer/1");
         getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         var getWrapper = await ReadAsJsonAsync<ApiResponse<PurchasesByCustomerDto>>(getResponse);
-        getWrapper.Value.Purchases.Should().Contain(purchase => purchase.Id == 100 && purchase.CustomerId == 999);
+        getWrapper.Value.Purchases.Should().Contain(purchase => purchase.Id == 100 && purchase.CustomerId == 1);
+    }
+
+    [Fact]
+    public async Task Add_WithNonExistingCustomer_ReturnsBadRequest()
+    {
+        using var client = CreateClient();
+        var request = new AddPurchaseRequest(102, 999, [1]);
+
+        var response = await PostAsync(client, "/purchases", request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task Add_WithNonExistingProduct_ReturnsBadRequest()
+    {
+        using var client = CreateClient();
+        var request = new AddPurchaseRequest(103, 1, [999]);
+
+        var response = await PostAsync(client, "/purchases", request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -150,7 +174,9 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         var getResponse = await GetAsync(client, "/purchases/customer/998");
-        getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var getWrapper = await ReadAsJsonAsync<ApiResponse<PurchasesByCustomerDto>>(getResponse);
+        getWrapper.Value.Purchases.Should().BeEmpty();
     }
 
     [Fact]

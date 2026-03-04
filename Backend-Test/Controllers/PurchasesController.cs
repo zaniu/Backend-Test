@@ -28,7 +28,6 @@ public class PurchasesController : ControllerBase
 
     [HttpGet("customer/{customerId}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SingleItemResponse<GetPurchaseByCustomerIdResponse>))]
-    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(SingleItemResponse<object>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleItemResponse<object>))]
     public async Task<ActionResult<SingleItemResponse<GetPurchaseByCustomerIdResponse>>> GetByCustomerId(int customerId)
     {

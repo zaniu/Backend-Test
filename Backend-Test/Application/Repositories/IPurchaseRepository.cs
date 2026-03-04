@@ -3,6 +3,8 @@ namespace BackendTest.Application.Repositories;
 public interface IPurchaseRepository
 {
     bool Exists(int id, CancellationToken cancellationToken);
+    bool ExistsByCustomerId(int customerId, CancellationToken cancellationToken);
+    bool ExistsByProductId(int productId, CancellationToken cancellationToken);
     List<Model.Purchase> GetAll(CancellationToken cancellationToken);
     Model.Purchase GetById(int id, CancellationToken cancellationToken);
     List<Model.Purchase> GetByCustomerId(int customerId, CancellationToken cancellationToken);

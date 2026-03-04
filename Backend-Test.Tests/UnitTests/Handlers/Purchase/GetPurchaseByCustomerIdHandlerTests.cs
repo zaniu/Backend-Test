@@ -1,7 +1,6 @@
 using BackendTest.Application.Handlers.Purchase;
 using BackendTest.Application.Requests.Purchase;
 using BackendTest.Application.Repositories;
-using BackendTest.Exceptions;
 using FluentAssertions;
 using Moq;
 
@@ -28,7 +27,7 @@ public class GetPurchaseByCustomerIdHandlerTests
     }
 
     [Fact]
-    public async Task Handle_WithMissingId_ThrowsException()
+    public async Task Handle_WithMissingId_ReturnsEmptyPurchases()
     {
         // Arrange
         var repositoryMock = new Mock<IPurchaseRepository>();
@@ -38,9 +37,9 @@ public class GetPurchaseByCustomerIdHandlerTests
         var handler = new GetPurchaseByCustomerIdHandler(repositoryMock.Object);
 
         // Act
-        var act = async () => await handler.Handle(new GetPurchaseByCustomerIdRequest(999), CancellationToken.None);
+        var response = await handler.Handle(new GetPurchaseByCustomerIdRequest(999), CancellationToken.None);
 
         // Assert
-        await act.Should().ThrowAsync<NotFoundException>().WithMessage("Item does not exist");
+        response.Purchases.Should().BeEmpty();
     }
 }

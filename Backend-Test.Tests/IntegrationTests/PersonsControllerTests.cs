@@ -166,9 +166,9 @@ public class PersonsControllerIntegrationTests : IntegrationTestBase
     }
 
     [Theory]
-    [InlineData(5)]
+    [InlineData(9)]
     [InlineData(10)]
-    public async Task Delete_WithExistingId_ReturnsNoContent(int personId)
+    public async Task Delete_WithExistingIdWithoutPurchases_ReturnsNoContent(int personId)
     {
         // Arrange
         // Data should be inserted into persons collection before test execution
@@ -183,6 +183,16 @@ public class PersonsControllerIntegrationTests : IntegrationTestBase
 
         var getResponse = await GetAsync(client, $"/persons/{personId}");
         getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Delete_WithExistingIdWithPurchases_ReturnsBadRequest()
+    {
+        using var client = CreateClient();
+
+        var response = await DeleteAsync(client, "/persons/1");
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]

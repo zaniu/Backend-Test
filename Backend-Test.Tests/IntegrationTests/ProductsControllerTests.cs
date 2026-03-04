@@ -133,22 +133,32 @@ public class ProductsControllerIntegrationTests : IntegrationTestBase
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    [Theory]
-    [InlineData(3)]
-    [InlineData(6)]
-    public async Task Delete_WithExistingId_ReturnsNoContent(int productId)
+    [Fact]
+    public async Task Delete_WithExistingIdWithoutPurchases_ReturnsNoContent()
     {
         // Arrange
         using var client = CreateClient();
+        var addResponse = await PostAsync(client, "/products", new AddProductRequest(500, "Temporary", "Test", 1.99m));
+        addResponse.StatusCode.Should().Be(HttpStatusCode.Created);
 
         // Act
-        var response = await DeleteAsync(client, $"/products/{productId}");
+        var response = await DeleteAsync(client, "/products/500");
         
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        var getResponse = await GetAsync(client, $"/products/{productId}");
+        var getResponse = await GetAsync(client, "/products/500");
         getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Delete_WithExistingIdWithPurchases_ReturnsBadRequest()
+    {
+        using var client = CreateClient();
+
+        var response = await DeleteAsync(client, "/products/1");
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
