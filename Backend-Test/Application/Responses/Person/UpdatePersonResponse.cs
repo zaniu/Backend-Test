@@ -1,17 +1,9 @@
 namespace BackendTest.Application.Responses.Person;
 
-public class UpdatePersonResponse
+public record UpdatePersonResponse(int Id, string Firstname, string Lastname, int YearOfBirth)
 {
-    public int Id { get; init; }
-    public string Firstname { get; init; }
-    public string Lastname { get; init; }
-    public int YearOfBirth { get; init; }
-
     public UpdatePersonResponse(Model.Person person)
+        : this(person.Id, person.Firstname, person.Lastname, person.YearOfBirth)
     {
-        Id = person.Id;
-        Firstname = person.Firstname;
-        Lastname = person.Lastname;
-        YearOfBirth = person.YearOfBirth;
     }
 }

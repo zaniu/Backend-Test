@@ -1,9 +1,9 @@
 namespace BackendTest.Application.Responses.Product;
 
-public class GetAllProductsResponse : List<GetProductByIdResponse>
+public record GetAllProductsResponse(IReadOnlyCollection<GetProductByIdResponse> Products)
 {
     public GetAllProductsResponse(List<Model.Product> products)
+        : this(products.Select(product => new GetProductByIdResponse(product)).ToList())
     {
-        AddRange(products.Select(product => new GetProductByIdResponse(product)));
     }
 }

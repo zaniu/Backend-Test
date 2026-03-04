@@ -103,7 +103,7 @@ public class ProductsControllerIntegrationTests : IntegrationTestBase
     {
         // Arrange
         using var client = CreateClient();
-        var request = new UpdateProductRequest(1, "Updated Product", "Updated Type", 29.99m);
+        var request = new UpdateProductRequest("Updated Product", "Updated Type", 29.99m);
 
         // Act
         var response = await PutAsync(client, "/products/1", request);
@@ -124,7 +124,7 @@ public class ProductsControllerIntegrationTests : IntegrationTestBase
     {
         // Arrange
         using var client = CreateClient();
-        var request = new UpdateProductRequest(999, "Updated Product", "Updated Type", 29.99m);
+        var request = new UpdateProductRequest("Updated Product", "Updated Type", 29.99m);
 
         // Act
         var response = await PutAsync(client, "/products/999", request);

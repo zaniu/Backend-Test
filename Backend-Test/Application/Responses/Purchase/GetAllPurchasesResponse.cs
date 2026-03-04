@@ -1,9 +1,9 @@
 namespace BackendTest.Application.Responses.Purchase;
 
-public class GetAllPurchasesResponse : List<GetPurchaseByCustomerIdResponse>
+public record GetAllPurchasesResponse(IReadOnlyCollection<GetPurchaseByCustomerIdResponse> Purchases)
 {
     public GetAllPurchasesResponse(List<Model.Purchase> purchases)
+        : this(purchases.Select(purchase => new GetPurchaseByCustomerIdResponse(purchase)).ToList())
     {
-        AddRange(purchases.Select(purchase => new GetPurchaseByCustomerIdResponse(purchase)));
     }
 }

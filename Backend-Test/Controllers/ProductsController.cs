@@ -18,47 +18,47 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Response<GetAllProductsResponse>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CollectionResponse<GetProductByIdResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ValidationProblemDetails))]
-    public async Task<ActionResult<Response<GetAllProductsResponse>>> GetAll()
+    public async Task<ActionResult<CollectionResponse<GetProductByIdResponse>>> GetAll()
     {
         var response = await _mediator.Send(new GetAllProductsRequest());
-        return Ok(new Response<GetAllProductsResponse>(response));
+        return Ok(new CollectionResponse<GetProductByIdResponse>(response.Products));
     }
 
     [HttpGet("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Response<GetProductByIdResponse>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SingleItemResponse<GetProductByIdResponse>))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ValidationProblemDetails))]
-    public async Task<ActionResult<Response<GetProductByIdResponse>>> GetById(int id)
+    public async Task<ActionResult<SingleItemResponse<GetProductByIdResponse>>> GetById(int id)
     {
         var response = await _mediator.Send(new GetProductByIdRequest(id));
-        return Ok(new Response<GetProductByIdResponse>(response));
+        return Ok(new SingleItemResponse<GetProductByIdResponse>(response));
     }
 
     [HttpPost]
     [Consumes("application/json")]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Response<AddProductResponse>))]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(SingleItemResponse<AddProductResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status409Conflict, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ValidationProblemDetails))]
-    public async Task<ActionResult<Response<AddProductResponse>>> Add([FromBody] AddProductRequest request)
+    public async Task<ActionResult<SingleItemResponse<AddProductResponse>>> Add([FromBody] AddProductRequest request)
     {
         var response = await _mediator.Send(request);
-        return CreatedAtAction(nameof(GetById), new { id = response.Id }, new Response<AddProductResponse>(response));
+        return CreatedAtAction(nameof(GetById), new { id = response.Id }, new SingleItemResponse<AddProductResponse>(response));
     }
 
     [HttpPut("{id}")]
     [Consumes("application/json")]
-    [ProducesResponseType(StatusCodes.Status202Accepted, Type = typeof(Response<UpdateProductResponse>))]
+    [ProducesResponseType(StatusCodes.Status202Accepted, Type = typeof(SingleItemResponse<UpdateProductResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ValidationProblemDetails))]
-    public async Task<ActionResult<Response<UpdateProductResponse>>> Update(int id, [FromBody] UpdateProductRequest request)
+    public async Task<ActionResult<SingleItemResponse<UpdateProductResponse>>> Update(int id, [FromBody] UpdateProductRequest request)
     {
-        request.Id = id;
-        var response = await _mediator.Send(request);
-        return Accepted(new Response<UpdateProductResponse>(response));
+        var command = request with { Id = id };
+        var response = await _mediator.Send(command);
+        return Accepted(new SingleItemResponse<UpdateProductResponse>(response));
     }
 
     [HttpDelete("{id}")]

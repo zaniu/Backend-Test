@@ -1,7 +1,8 @@
 using System.Net;
 using System.Text.Json;
+using BackendTest.Contracts;
 using BackendTest.Exceptions;
-using Microsoft.AspNetCore.Mvc;
+using FluentValidation;
 
 namespace BackendTest.Middleware;
 
@@ -33,21 +34,17 @@ public class ExceptionHandlingMiddleware
             NotFoundException => HttpStatusCode.NotFound,
             DuplicateException => HttpStatusCode.Conflict,
             DomainModelException => HttpStatusCode.BadRequest,
+            ValidationException => HttpStatusCode.BadRequest,
             _ => HttpStatusCode.InternalServerError
         };
 
-        var errors = new Dictionary<string, string[]>
-        {
-            ["Error"] = [exception.Message]
-        };
+        var errors = exception is ValidationException validationException
+            ? validationException.Errors
+                .Select(error => $"{error.PropertyName}: {error.ErrorMessage}")
+                .ToList()
+            : [exception.Message];
 
-        var response = new ValidationProblemDetails(errors)
-        {
-            Type = GetTypeUri(statusCode),
-            Title = "One or more validation errors occurred.",
-            Status = (int)statusCode
-        };
-        response.Extensions["traceId"] = context.TraceIdentifier;
+        var response = new SingleItemResponse<object>(exception.Message, errors, context.TraceIdentifier);
 
         context.Response.StatusCode = (int)statusCode;
         context.Response.ContentType = "application/json";
@@ -56,14 +53,4 @@ public class ExceptionHandlingMiddleware
         await context.Response.WriteAsync(json);
     }
 
-    private static string GetTypeUri(HttpStatusCode statusCode)
-    {
-        return statusCode switch
-        {
-            HttpStatusCode.BadRequest => "https://tools.ietf.org/html/rfc9110#section-15.5.1",
-            HttpStatusCode.NotFound => "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-            HttpStatusCode.Conflict => "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-            _ => "https://tools.ietf.org/html/rfc9110#section-15.6.1"
-        };
-    }
 }

@@ -118,7 +118,7 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
     {
         // Arrange:
         // Data: Person with ID=1 should exist in persons collection
-        var request = new UpdatePersonRequest(1, "UpdatedFirstName", "UpdatedLastName", 1980);
+        var request = new UpdatePersonRequest("UpdatedFirstName", "UpdatedLastName", 1980);
         
         // Act:
         using var client = CreateClient();
@@ -141,7 +141,7 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
         // Arrange:
         // Data: Person with ID=1 should exist in persons collection
         var futureYear = DateTime.UtcNow.Year + 1;
-        var request = new UpdatePersonRequest(1, "TestName", "TestLastName", futureYear);
+        var request = new UpdatePersonRequest("TestName", "TestLastName", futureYear);
         
         // Act:
         using var client = CreateClient();
@@ -155,7 +155,7 @@ public class PersonControllerIntegrationTests : IntegrationTestBase
     public async Task Update_WithNonExistingPerson_ReturnsNotFound()
     {
         // Arrange
-        var request = new UpdatePersonRequest(999, "Unknown", "Person", 1980);
+        var request = new UpdatePersonRequest("Unknown", "Person", 1980);
 
         // Act
         using var client = CreateClient();

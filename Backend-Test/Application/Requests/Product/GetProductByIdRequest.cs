@@ -3,12 +3,4 @@ using MediatR;
 
 namespace BackendTest.Application.Requests.Product;
 
-public class GetProductByIdRequest : IRequest<GetProductByIdResponse>
-{
-    public int Id { get; set; }
-
-    public GetProductByIdRequest(int id)
-    {
-        Id = id;
-    }
-}
+public record GetProductByIdRequest(int Id) : IRequest<GetProductByIdResponse>;

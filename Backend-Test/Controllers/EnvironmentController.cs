@@ -16,23 +16,23 @@ public class EnvironmentController : ControllerBase
     }
 
     [HttpGet("production")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Response<bool>))]
-    public ActionResult<Response<bool>> GetIsProduction() 
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SingleItemResponse<bool>))]
+    public ActionResult<SingleItemResponse<bool>> GetIsProduction() 
     {
-        return Ok(new Response<bool>(_config.IsProduction));
+        return Ok(new SingleItemResponse<bool>(_config.IsProduction));
     }
 
     [HttpGet("apiversion")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Response<string>))]
-    public ActionResult<Response<string>> GetApiVersion()
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SingleItemResponse<string>))]
+    public ActionResult<SingleItemResponse<string>> GetApiVersion()
     {
-        return Ok(new Response<string>(_config.ApiVersion));
+        return Ok(new SingleItemResponse<string>(_config.ApiVersion));
     }
 
     [HttpGet("uiversion")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Response<string>))]
-    public ActionResult<Response<string>> GetUIVersion()
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SingleItemResponse<string>))]
+    public ActionResult<SingleItemResponse<string>> GetUIVersion()
     {
-        return Ok(new Response<string>(_config.UiVersion));
+        return Ok(new SingleItemResponse<string>(_config.UiVersion));
     }
 }

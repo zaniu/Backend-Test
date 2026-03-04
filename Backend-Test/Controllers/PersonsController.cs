@@ -8,57 +8,57 @@ namespace BackendTest.Controllers;
 
 [ApiController]
 [Route("persons")]
-public class PersonController : ControllerBase
+public class PersonsController : ControllerBase
 {
     private readonly IMediator _mediator;
 
-    public PersonController(IMediator mediator)
+    public PersonsController(IMediator mediator)
     {
         _mediator = mediator;
     }
 
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Response<GetAllPersonsResponse>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CollectionResponse<GetPersonByIdResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ValidationProblemDetails))]
-    public async Task<ActionResult<Response<GetAllPersonsResponse>>> GetAll()
+    public async Task<ActionResult<CollectionResponse<GetPersonByIdResponse>>> GetAll()
     {
         var response = await _mediator.Send(new GetAllPersonsRequest());
-        return Ok(new Response<GetAllPersonsResponse>(response));
+        return Ok(new CollectionResponse<GetPersonByIdResponse>(response.Persons));
     }
 
     [HttpGet("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Response<GetPersonByIdResponse>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SingleItemResponse<GetPersonByIdResponse>))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ValidationProblemDetails))]
-    public async Task<ActionResult<Response<GetPersonByIdResponse>>> GetById(int id)
+    public async Task<ActionResult<SingleItemResponse<GetPersonByIdResponse>>> GetById(int id)
     {
         var response = await _mediator.Send(new GetPersonByIdRequest(id));
-        return Ok(new Response<GetPersonByIdResponse>(response));
+        return Ok(new SingleItemResponse<GetPersonByIdResponse>(response));
     }
 
     [HttpPost]
     [Consumes("application/json")]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Response<AddPersonResponse>))]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(SingleItemResponse<AddPersonResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status409Conflict, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ValidationProblemDetails))]
-    public async Task<ActionResult<Response<AddPersonResponse>>> Add([FromBody] AddPersonRequest request)
+    public async Task<ActionResult<SingleItemResponse<AddPersonResponse>>> Add([FromBody] AddPersonRequest request)
     {
         var response = await _mediator.Send(request);
-        return CreatedAtAction(nameof(GetById), new { id = response.Id }, new Response<AddPersonResponse>(response));
+        return CreatedAtAction(nameof(GetById), new { id = response.Id }, new SingleItemResponse<AddPersonResponse>(response));
     }
 
     [HttpPut("{id}")]
     [Consumes("application/json")]
-    [ProducesResponseType(StatusCodes.Status202Accepted, Type = typeof(Response<UpdatePersonResponse>))]
+    [ProducesResponseType(StatusCodes.Status202Accepted, Type = typeof(SingleItemResponse<UpdatePersonResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ValidationProblemDetails))]
-    public async Task<ActionResult<Response<UpdatePersonResponse>>> Update(int id, [FromBody] UpdatePersonRequest request)
+    public async Task<ActionResult<SingleItemResponse<UpdatePersonResponse>>> Update(int id, [FromBody] UpdatePersonRequest request)
     {
-        request.Id = id;
-        var response = await _mediator.Send(request);
-        return Accepted(new Response<UpdatePersonResponse>(response));
+        var command = request with { Id = id };
+        var response = await _mediator.Send(command);
+        return Accepted(new SingleItemResponse<UpdatePersonResponse>(response));
     }
 
     [HttpDelete("{id}")]

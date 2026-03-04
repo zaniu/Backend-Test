@@ -4,19 +4,8 @@ using MediatR;
 
 namespace BackendTest.Application.Requests.Person;
 
-public class UpdatePersonRequest : IRequest<UpdatePersonResponse>
+public record UpdatePersonRequest(string Firstname, string Lastname, int YearOfBirth) : IRequest<UpdatePersonResponse>
 {
     [JsonIgnore]
-    public int Id { get; set; }
-    public string Firstname { get; set; }
-    public string Lastname { get; set; }
-    public int YearOfBirth { get; set; }
-
-    public UpdatePersonRequest(int id, string firstname, string lastname, int yearOfBirth)
-    {
-        Id = id;
-        Firstname = firstname;
-        Lastname = lastname;
-        YearOfBirth = yearOfBirth;
-    }
+    public int Id { get; init; }
 }

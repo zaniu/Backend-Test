@@ -18,22 +18,22 @@ public class PurchasesController : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Response<GetAllPurchasesResponse>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CollectionResponse<GetPurchaseByCustomerIdResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ValidationProblemDetails))]
-    public async Task<ActionResult<Response<GetAllPurchasesResponse>>> GetAll()
+    public async Task<ActionResult<CollectionResponse<GetPurchaseByCustomerIdResponse>>> GetAll()
     {
         var response = await _mediator.Send(new GetAllPurchasesRequest());
-        return Ok(new Response<GetAllPurchasesResponse>(response));
+        return Ok(new CollectionResponse<GetPurchaseByCustomerIdResponse>(response.Purchases));
     }
 
     [HttpGet("customer/{customerId}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Response<GetPurchaseByCustomerIdResponse>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SingleItemResponse<GetPurchaseByCustomerIdResponse>))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ValidationProblemDetails))]
-    public async Task<ActionResult<Response<GetPurchaseByCustomerIdResponse>>> GetByCustomerId(int customerId)
+    public async Task<ActionResult<SingleItemResponse<GetPurchaseByCustomerIdResponse>>> GetByCustomerId(int customerId)
     {
         var response = await _mediator.Send(new GetPurchaseByCustomerIdRequest(customerId));
-        return Ok(new Response<GetPurchaseByCustomerIdResponse>(response));
+        return Ok(new SingleItemResponse<GetPurchaseByCustomerIdResponse>(response));
     }
 
     /// <summary>
@@ -49,14 +49,14 @@ public class PurchasesController : ControllerBase
 
     [HttpPost]
     [Consumes("application/json")]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Response<AddPurchaseResponse>))]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(SingleItemResponse<AddPurchaseResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status409Conflict, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ValidationProblemDetails))]
-    public async Task<ActionResult<Response<AddPurchaseResponse>>> Add([FromBody] AddPurchaseRequest request)
+    public async Task<ActionResult<SingleItemResponse<AddPurchaseResponse>>> Add([FromBody] AddPurchaseRequest request)
     {
         var response = await _mediator.Send(request);
-        return CreatedAtAction(nameof(GetByCustomerId), new { customerId = response.CustomerId }, new Response<AddPurchaseResponse>(response));
+        return CreatedAtAction(nameof(GetByCustomerId), new { customerId = response.CustomerId }, new SingleItemResponse<AddPurchaseResponse>(response));
     }
 
     [HttpDelete("{id}")]

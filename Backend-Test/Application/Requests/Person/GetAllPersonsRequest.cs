@@ -3,6 +3,4 @@ using BackendTest.Application.Responses.Person;
 
 namespace BackendTest.Application.Requests.Person;
 
-public class GetAllPersonsRequest : IRequest<GetAllPersonsResponse>
-{
-}
+public record GetAllPersonsRequest : IRequest<GetAllPersonsResponse>;

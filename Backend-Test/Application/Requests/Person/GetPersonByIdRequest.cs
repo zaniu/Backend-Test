@@ -3,12 +3,4 @@ using MediatR;
 
 namespace BackendTest.Application.Requests.Person;
 
-public class GetPersonByIdRequest : IRequest<GetPersonByIdResponse>
-{
-    public int Id { get; set; }
-
-    public GetPersonByIdRequest(int id)
-    {
-        Id = id;
-    }
-}
+public record GetPersonByIdRequest(int Id) : IRequest<GetPersonByIdResponse>;

@@ -13,7 +13,7 @@ public class UpdateProductHandlerTests
         var data = new Data();
         var handler = new UpdateProductHandler(data, new HelperUtils(data));
 
-        var response = await handler.Handle(new UpdateProductRequest(2, "Updated Product", "Updated", 44.3m), CancellationToken.None);
+        var response = await handler.Handle(new UpdateProductRequest("Updated Product", "Updated", 44.3m) with { Id = 2 }, CancellationToken.None);
 
         response.Id.Should().Be(2);
         response.Name.Should().Be("Updated Product");
@@ -26,7 +26,7 @@ public class UpdateProductHandlerTests
         var data = new Data();
         var handler = new UpdateProductHandler(data, new HelperUtils(data));
 
-        var act = async () => await handler.Handle(new UpdateProductRequest(999, "None", "None", 1m), CancellationToken.None);
+        var act = async () => await handler.Handle(new UpdateProductRequest("None", "None", 1m) with { Id = 999 }, CancellationToken.None);
 
         await act.Should().ThrowAsync<NotFoundException>().WithMessage("Item does not exist");
     }

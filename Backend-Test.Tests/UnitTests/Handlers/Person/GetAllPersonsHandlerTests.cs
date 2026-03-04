@@ -15,6 +15,6 @@ public class GetAllPersonsHandlerTests
 
         var response = await handler.Handle(new GetAllPersonsRequest(), CancellationToken.None);
 
-        response.Should().HaveCount(data.persons.Count);
+        response.Persons.Should().HaveCount(data.persons.Count);
     }
 }

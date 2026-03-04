@@ -15,6 +15,6 @@ public class GetAllProductsHandlerTests
 
         var response = await handler.Handle(new GetAllProductsRequest(), CancellationToken.None);
 
-        response.Should().HaveCount(data.products.Count);
+        response.Products.Should().HaveCount(data.products.Count);
     }
 }

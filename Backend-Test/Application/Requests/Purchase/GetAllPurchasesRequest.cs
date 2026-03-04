@@ -3,6 +3,4 @@ using MediatR;
 
 namespace BackendTest.Application.Requests.Purchase;
 
-public class GetAllPurchasesRequest : IRequest<GetAllPurchasesResponse>
-{
-}
+public record GetAllPurchasesRequest : IRequest<GetAllPurchasesResponse>;

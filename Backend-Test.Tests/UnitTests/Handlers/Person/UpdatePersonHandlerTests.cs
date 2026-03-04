@@ -16,7 +16,7 @@ public class UpdatePersonHandlerTests
         var handler = new UpdatePersonHandler(data, new HelperUtils(data));
 
         // Act
-        var response = await handler.Handle(new UpdatePersonRequest(2, "Updated", "Person", 1988), CancellationToken.None);
+        var response = await handler.Handle(new UpdatePersonRequest("Updated", "Person", 1988) with { Id = 2 }, CancellationToken.None);
 
         // Assert
         response.Id.Should().Be(2);
@@ -33,7 +33,7 @@ public class UpdatePersonHandlerTests
 
         // Act
         var act = async () => await handler.Handle(
-            new UpdatePersonRequest(1, "Future", "Person", DateTime.UtcNow.Year + 1),
+            new UpdatePersonRequest("Future", "Person", DateTime.UtcNow.Year + 1) with { Id = 1 },
             CancellationToken.None);
 
         // Assert

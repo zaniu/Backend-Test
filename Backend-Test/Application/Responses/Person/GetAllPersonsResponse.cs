@@ -1,9 +1,9 @@
 namespace BackendTest.Application.Responses.Person;
 
-public class GetAllPersonsResponse : List<GetPersonByIdResponse>
+public record GetAllPersonsResponse(IReadOnlyCollection<GetPersonByIdResponse> Persons)
 {
     public GetAllPersonsResponse(List<Model.Person> persons)
+        : this(persons.Select(person => new GetPersonByIdResponse(person)).ToList())
     {
-        AddRange(persons.Select(person => new GetPersonByIdResponse(person)));
     }
 }

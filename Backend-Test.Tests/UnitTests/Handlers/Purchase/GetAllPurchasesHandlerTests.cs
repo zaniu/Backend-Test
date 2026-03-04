@@ -15,6 +15,6 @@ public class GetAllPurchasesHandlerTests
 
         var response = await handler.Handle(new GetAllPurchasesRequest(), CancellationToken.None);
 
-        response.Should().HaveCount(data.purchases.Count);
+        response.Purchases.Should().HaveCount(data.purchases.Count);
     }
 }
