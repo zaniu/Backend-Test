@@ -178,4 +178,35 @@ public class ProductsControllerIntegrationTests : IntegrationTestBase
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
+
+    [Fact]
+    public async Task GetById_WithMalformedId_ReturnsNotFound()
+    {
+        using var client = CreateClient();
+
+        var response = await GetAsync(client, "/products/not-an-int");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Update_WithMalformedId_ReturnsNotFound()
+    {
+        using var client = CreateClient();
+        var request = new UpdateProductRequest("Updated Product", "Updated Type", 10m);
+
+        var response = await PutAsync(client, "/products/not-an-int", request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Delete_WithMalformedId_ReturnsNotFound()
+    {
+        using var client = CreateClient();
+
+        var response = await DeleteAsync(client, "/products/not-an-int");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
 }

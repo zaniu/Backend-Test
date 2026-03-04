@@ -322,4 +322,54 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
+
+    [Fact]
+    public async Task GetByCustomerId_WithMalformedCustomerId_ReturnsNotFound()
+    {
+        using var client = CreateClient();
+
+        var response = await GetAsync(client, "/purchases/customer/not-an-int");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Delete_WithMalformedId_ReturnsNotFound()
+    {
+        using var client = CreateClient();
+
+        var response = await DeleteAsync(client, "/purchases/not-an-int");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task DeleteFromCustomer_WithMalformedCustomerId_ReturnsNotFound()
+    {
+        using var client = CreateClient();
+
+        var response = await DeleteAsync(client, "/purchases/customer/not-an-int");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task GetPurchaseReportById_WithMalformedPurchaseId_ReturnsNotFound()
+    {
+        using var client = CreateClient();
+
+        var response = await PostAsync(client, "/purchases/not-an-int/report");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task DownloadReportById_WithMalformedReportId_ReturnsNotFound()
+    {
+        using var client = CreateClient();
+
+        var response = await GetAsync(client, "/purchases/1/reports/not-a-guid");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
 }

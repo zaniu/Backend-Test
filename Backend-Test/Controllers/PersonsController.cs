@@ -26,7 +26,7 @@ public class PersonsController : ControllerBase
         return Ok(new CollectionResponse<GetPersonByIdResponse>(response.Persons));
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SingleItemResponse<GetPersonByIdResponse>))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(SingleItemResponse<object>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleItemResponse<object>))]
@@ -48,7 +48,7 @@ public class PersonsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = response.Id }, new SingleItemResponse<AddPersonResponse>(response));
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     [Consumes("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SingleItemResponse<UpdatePersonResponse>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(SingleItemResponse<object>))]
@@ -61,7 +61,7 @@ public class PersonsController : ControllerBase
         return Ok(new SingleItemResponse<UpdatePersonResponse>(response));
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(SingleItemResponse<object>))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(SingleItemResponse<object>))]

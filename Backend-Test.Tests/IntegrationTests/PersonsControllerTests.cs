@@ -211,4 +211,35 @@ public class PersonsControllerIntegrationTests : IntegrationTestBase
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
+
+    [Fact]
+    public async Task GetById_WithMalformedId_ReturnsNotFound()
+    {
+        using var client = CreateClient();
+
+        var response = await GetAsync(client, "/persons/not-an-int");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Update_WithMalformedId_ReturnsNotFound()
+    {
+        using var client = CreateClient();
+        var request = new UpdatePersonRequest("Name", "Surname", 1990);
+
+        var response = await PutAsync(client, "/persons/not-an-int", request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Delete_WithMalformedId_ReturnsNotFound()
+    {
+        using var client = CreateClient();
+
+        var response = await DeleteAsync(client, "/persons/not-an-int");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
 }

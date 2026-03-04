@@ -26,7 +26,7 @@ public class PurchasesController : ControllerBase
         return Ok(new CollectionResponse<PurchaseItemResponse>(response.Purchases));
     }
 
-    [HttpGet("customer/{customerId}")]
+    [HttpGet("customer/{customerId:int}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SingleItemResponse<GetPurchaseByCustomerIdResponse>))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(SingleItemResponse<object>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleItemResponse<object>))]
@@ -36,7 +36,7 @@ public class PurchasesController : ControllerBase
         return Ok(new SingleItemResponse<GetPurchaseByCustomerIdResponse>(response));
     }
 
-    [HttpPost("{purchaseId}/report")]
+    [HttpPost("{purchaseId:int}/report")]
     [ProducesResponseType(StatusCodes.Status302Found)]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(SingleItemResponse<object>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(SingleItemResponse<object>))]
@@ -52,7 +52,7 @@ public class PurchasesController : ControllerBase
         return RedirectToAction(nameof(DownloadReportById), new { purchaseId = response.PurchaseId, reportId = response.ReportId });
     }
 
-    [HttpGet("{purchaseId}/reports/{reportId}")]
+    [HttpGet("{purchaseId:int}/reports/{reportId:guid}")]
     [Produces("text/csv")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(SingleItemResponse<object>))]
@@ -76,7 +76,7 @@ public class PurchasesController : ControllerBase
         return CreatedAtAction(nameof(GetByCustomerId), new { customerId = response.CustomerId }, new SingleItemResponse<AddPurchaseResponse>(response));
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(SingleItemResponse<object>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleItemResponse<object>))]
@@ -86,7 +86,7 @@ public class PurchasesController : ControllerBase
         return NoContent();
     }
 
-    [HttpDelete("customer/{customerId}")]
+    [HttpDelete("customer/{customerId:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(SingleItemResponse<object>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleItemResponse<object>))]
