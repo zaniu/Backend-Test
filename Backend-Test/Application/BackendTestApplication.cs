@@ -13,6 +13,7 @@ public static class BackendTestApplication
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssembly(typeof(BackendTestApplication).Assembly);
+            cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
             cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
 
