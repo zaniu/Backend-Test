@@ -13,7 +13,7 @@ public class Product
     public decimal Price { get; set; }
 
     public Product() { }
-    
+
     [SetsRequiredMembers]
     public Product(int id, string name, string type, decimal price = 0)
     {

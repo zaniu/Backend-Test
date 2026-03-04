@@ -16,7 +16,7 @@ public class EnvironmentControllerIntegrationTests : IntegrationTestBase
 
         // Act
         var response = await GetAsync(client, "/environment/production");
-        
+
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var content = await ReadAsJsonAsync<ApiResponse<bool>>(response);
@@ -32,7 +32,7 @@ public class EnvironmentControllerIntegrationTests : IntegrationTestBase
 
         // Act
         var response = await GetAsync(client, "/environment/apiversion");
-        
+
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var content = await ReadAsJsonAsync<ApiResponse<string>>(response);
@@ -48,7 +48,7 @@ public class EnvironmentControllerIntegrationTests : IntegrationTestBase
 
         // Act
         var response = await GetAsync(client, "/environment/uiversion");
-        
+
         // Assert
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
         var content = await ReadAsJsonAsync<ApiResponse<string>>(response);

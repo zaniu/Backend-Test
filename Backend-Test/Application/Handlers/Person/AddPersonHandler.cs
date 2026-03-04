@@ -17,7 +17,7 @@ public class AddPersonHandler : IRequestHandler<AddPersonRequest, AddPersonRespo
 
     public Task<AddPersonResponse> Handle(AddPersonRequest request, CancellationToken cancellationToken)
     {
-        if(_personRepository.Exists(request.Id, cancellationToken))
+        if (_personRepository.Exists(request.Id, cancellationToken))
         {
             throw new DuplicateException();
         }

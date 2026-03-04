@@ -6,7 +6,7 @@ namespace BackendTest.Model;
 public class Purchase
 {
     private readonly List<int> _productsIds;
-    
+
     public required int Id { get; init; }
 
     public required int CustomerId { get; init; }
