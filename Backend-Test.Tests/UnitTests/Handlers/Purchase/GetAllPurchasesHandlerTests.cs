@@ -14,8 +14,15 @@ public class GetAllPurchasesHandlerTests
         // Arrange
         var purchases = new List<Model.Purchase>
         {
-            new(1, 1, [1, 2]),
-            new(2, 2, [3])
+            new Model.Purchase(1, 1, new List<Model.PurchaseProductItem>
+            {
+                new Model.PurchaseProductItem(1, 1),
+                new Model.PurchaseProductItem(2, 1)
+            }),
+            new Model.Purchase(2, 2, new List<Model.PurchaseProductItem>
+            {
+                new Model.PurchaseProductItem(3, 1)
+            })
         };
         var repositoryMock = new Mock<IPurchaseRepository>();
         repositoryMock

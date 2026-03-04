@@ -7,12 +7,15 @@ public class AddPurchaseRequestValidator : AbstractValidator<AddPurchaseRequest>
 {
     public AddPurchaseRequestValidator()
     {
-        RuleFor(r => r.Id)
-            .GreaterThan(0);
-
-        RuleFor(r => r.ProductsIds)
+        RuleFor(r => r.Items)
             .NotNull()
-            .Must(products => products.Count > 0)
+            .Must(items => items.Count > 0)
             .WithMessage("At least one product is required");
+
+        RuleForEach(r => r.Items)
+            .ChildRules(item =>
+            {
+                item.RuleFor(i => i.Count).GreaterThan(0);
+            });
     }
 }

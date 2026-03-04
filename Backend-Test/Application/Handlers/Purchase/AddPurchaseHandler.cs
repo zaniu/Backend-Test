@@ -29,12 +29,14 @@ public class AddPurchaseHandler : IRequestHandler<AddPurchaseRequest, AddPurchas
             throw new DomainModelException("Customer does not exist");
         }
 
-        if (!await _productRepository.ExistsAll(request.ProductsIds, cancellationToken))
+        var requestedProductIds = request.Items.Select(item => item.ProductId).Distinct().ToList();
+
+        if (!await _productRepository.ExistsAll(requestedProductIds, cancellationToken))
         {
             throw new DomainModelException("One or more products do not exist");
         }
 
-        var purchase = new Model.Purchase(request.Id, request.CustomerId, request.ProductsIds);
+        var purchase = MapToDomain(request);
         var persistedPurchase = await _purchaseRepository.TryAdd(purchase, cancellationToken);
         if (persistedPurchase == null)
         {
@@ -42,5 +44,17 @@ public class AddPurchaseHandler : IRequestHandler<AddPurchaseRequest, AddPurchas
         }
 
         return new AddPurchaseResponse(persistedPurchase);
+    }
+
+    private static Model.Purchase MapToDomain(AddPurchaseRequest request)
+    {
+        var items = request.Items
+            .Select(item => new Model.PurchaseProductItem(item.ProductId, item.Count))
+            .ToList();
+
+        return new Model.Purchase(
+            request.Id,
+            request.CustomerId,
+            items);
     }
 }

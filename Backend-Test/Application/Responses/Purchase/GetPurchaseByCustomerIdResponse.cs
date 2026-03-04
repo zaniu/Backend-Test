@@ -1,11 +1,9 @@
 namespace BackendTest.Application.Responses.Purchase;
 
-public class GetPurchaseByCustomerIdResponse
+public record GetPurchaseByCustomerIdResponse(IReadOnlyCollection<PurchaseItemResponse> Purchases)
 {
-    public IReadOnlyCollection<PurchaseItemResponse> Purchases { get; init; }
-
     public GetPurchaseByCustomerIdResponse(List<Model.Purchase> purchases)
+        : this(purchases.Select(purchase => new PurchaseItemResponse(purchase)).ToList())
     {
-        Purchases = purchases.Select(purchase => new PurchaseItemResponse(purchase)).ToList();
     }
 }

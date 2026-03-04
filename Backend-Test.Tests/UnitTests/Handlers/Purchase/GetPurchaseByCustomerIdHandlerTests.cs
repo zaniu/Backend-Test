@@ -15,7 +15,17 @@ public class GetPurchaseByCustomerIdHandlerTests
         var repositoryMock = new Mock<IPurchaseRepository>();
         repositoryMock
             .Setup(repository => repository.GetByCustomerId(1, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([new Model.Purchase(1, 1, [1, 2]), new Model.Purchase(2, 1, [3])]);
+            .ReturnsAsync([
+                new Model.Purchase(1, 1, new List<Model.PurchaseProductItem>
+                {
+                    new Model.PurchaseProductItem(1, 1),
+                    new Model.PurchaseProductItem(2, 1)
+                }),
+                new Model.Purchase(2, 1, new List<Model.PurchaseProductItem>
+                {
+                    new Model.PurchaseProductItem(3, 1)
+                })
+            ]);
         var handler = new GetPurchaseByCustomerIdHandler(repositoryMock.Object);
 
         // Act

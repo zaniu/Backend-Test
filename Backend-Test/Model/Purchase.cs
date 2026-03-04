@@ -5,19 +5,19 @@ namespace BackendTest.Model;
 
 public class Purchase
 {
-    private readonly List<int> _productsIds;
+    private readonly List<PurchaseProductItem> _items;
 
     public required int Id { get; init; }
 
     public required int CustomerId { get; init; }
 
-    public ReadOnlyCollection<int> ProductsIds { get => _productsIds.AsReadOnly(); }
+    public ReadOnlyCollection<PurchaseProductItem> Items { get => _items.AsReadOnly(); }
 
     [SetsRequiredMembers]
-    public Purchase(int id, int customerId, List<int> productsIds)
+    public Purchase(int id, int customerId, List<PurchaseProductItem> items)
     {
         Id = id;
         CustomerId = customerId;
-        _productsIds = productsIds;
+        _items = items;
     }
 }

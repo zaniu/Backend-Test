@@ -7,5 +7,11 @@ public class PurchaseDto
 {
     public int Id { get; set; }
     public int CustomerId { get; set; }
-    public List<int> ProductsIds { get; set; } = [];
+    public List<PurchaseProductItemDto> Items { get; set; } = [];
+}
+
+public class PurchaseProductItemDto
+{
+    public int ProductId { get; set; }
+    public int Count { get; set; }
 }

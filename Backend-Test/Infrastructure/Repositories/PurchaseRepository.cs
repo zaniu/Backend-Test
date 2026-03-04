@@ -23,7 +23,7 @@ public class PurchaseRepository : IPurchaseRepository
 
     public Task<bool> ExistsByProductId(int productId, CancellationToken cancellationToken)
     {
-        return Task.FromResult(_data.purchases.Any(purchase => purchase.ProductsIds.Contains(productId)));
+        return Task.FromResult(_data.purchases.Any(purchase => purchase.Items.Any(item => item.ProductId == productId)));
     }
 
     public Task<List<Model.Purchase>> GetAll(CancellationToken cancellationToken)

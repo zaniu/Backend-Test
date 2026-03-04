@@ -144,7 +144,7 @@ public class ProductsControllerIntegrationTests : IntegrationTestBase
         using var client = CreateClient();
         await PostAsync(client, "/persons", new AddPersonRequest(1011, "Buyer", "One", 1980));
         await PostAsync(client, "/products", new AddProductRequest(2008, "Linked Product", "Test", 5m));
-        await PostAsync(client, "/purchases", new AddPurchaseRequest(3002, 1011, [2008]));
+        await PostAsync(client, "/purchases", new AddPurchaseRequest(3002, 1011, [new PurchaseProductItemRequest(2008, 1)]));
 
         // Act
         var response = await DeleteAsync(client, "/products/2008");

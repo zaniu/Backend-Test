@@ -28,14 +28,20 @@ public class AddPurchaseHandlerTests
         var handler = new AddPurchaseHandler(repositoryMock.Object, personRepositoryMock.Object, productRepositoryMock.Object);
 
         // Act
-        var response = await handler.Handle(new AddPurchaseRequest(999, 1, [1, 2]), CancellationToken.None);
+        var response = await handler.Handle(new AddPurchaseRequest(999, 1,
+        [
+            new PurchaseProductItemRequest(1, 1),
+            new PurchaseProductItemRequest(2, 1)
+        ]), CancellationToken.None);
 
         // Assert
         response.Id.Should().Be(999);
         repositoryMock.Verify(repository => repository.TryAdd(It.Is<Model.Purchase>(purchase =>
             purchase.Id == 999 &&
             purchase.CustomerId == 1 &&
-            purchase.ProductsIds.SequenceEqual(new[] { 1, 2 })), It.IsAny<CancellationToken>()), Times.Once);
+            purchase.Items.Count == 2 &&
+            purchase.Items.Any(item => item.ProductId == 1 && item.Count == 1) &&
+            purchase.Items.Any(item => item.ProductId == 2 && item.Count == 1)), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -57,7 +63,7 @@ public class AddPurchaseHandlerTests
         var handler = new AddPurchaseHandler(repositoryMock.Object, personRepositoryMock.Object, productRepositoryMock.Object);
 
         // Act
-        var act = async () => await handler.Handle(new AddPurchaseRequest(1, 1, [1]), CancellationToken.None);
+        var act = async () => await handler.Handle(new AddPurchaseRequest(1, 1, [new PurchaseProductItemRequest(1, 1)]), CancellationToken.None);
 
         // Assert
         await act.Should().ThrowAsync<DuplicateException>().WithMessage("Item already exists");
@@ -77,7 +83,7 @@ public class AddPurchaseHandlerTests
         var handler = new AddPurchaseHandler(repositoryMock.Object, personRepositoryMock.Object, productRepositoryMock.Object);
 
         // Act
-        var act = async () => await handler.Handle(new AddPurchaseRequest(1000, 999, [1]), CancellationToken.None);
+        var act = async () => await handler.Handle(new AddPurchaseRequest(1000, 999, [new PurchaseProductItemRequest(1, 1)]), CancellationToken.None);
 
         // Assert
         await act.Should().ThrowAsync<DomainModelException>().WithMessage("Customer does not exist");
@@ -100,7 +106,7 @@ public class AddPurchaseHandlerTests
         var handler = new AddPurchaseHandler(repositoryMock.Object, personRepositoryMock.Object, productRepositoryMock.Object);
 
         // Act
-        var act = async () => await handler.Handle(new AddPurchaseRequest(1001, 1, [999]), CancellationToken.None);
+        var act = async () => await handler.Handle(new AddPurchaseRequest(1001, 1, [new PurchaseProductItemRequest(999, 1)]), CancellationToken.None);
 
         // Assert
         await act.Should().ThrowAsync<DomainModelException>().WithMessage("One or more products do not exist");
