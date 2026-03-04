@@ -10,6 +10,8 @@ namespace BackendTest.Application.Handlers.Purchase;
 
 public class GetPurchaseReportByIdHandler : IRequestHandler<GetPurchaseReportByIdRequest, GetPurchaseReportByIdResponse>
 {
+    private static readonly SemaphoreSlim ReportCreationLock = new(1, 1);
+
     private readonly IPurchaseReportDataSource _reportDataSource;
     private readonly IReportRepository _reportRepository;
     private readonly IReportDownloadLinkProvider _reportDownloadLinkProvider;
@@ -39,17 +41,32 @@ public class GetPurchaseReportByIdHandler : IRequestHandler<GetPurchaseReportByI
 
     private async Task<Report> GetOrCreateReport(GetPurchaseReportByIdRequest request, CancellationToken cancellationToken)
     {
-        var existingReport = await _reportRepository.GetByPurchaseId(request.PurchaseId, ToDomain(request.Format), cancellationToken);
-        if(existingReport != null)
+        var reportFormat = ToDomain(request.Format);
+        var existingReport = await _reportRepository.GetByPurchaseId(request.PurchaseId, reportFormat, cancellationToken);
+        if (existingReport != null)
         {
             return existingReport;
         }
-    
-        var reportData = await _reportDataSource.GetData(request, cancellationToken);
-        var reportGenerator = _reportGeneratorFactory.Create(ToDomain(request.Format));
-        var report = reportGenerator.Generate(reportData);
 
-        return await _reportRepository.TryAdd(report, cancellationToken);
+        await ReportCreationLock.WaitAsync(cancellationToken);
+        try
+        {
+            existingReport = await _reportRepository.GetByPurchaseId(request.PurchaseId, reportFormat, cancellationToken);
+            if (existingReport != null)
+            {
+                return existingReport;
+            }
+
+            var reportData = await _reportDataSource.GetData(request, cancellationToken);
+            var reportGenerator = _reportGeneratorFactory.Create(reportFormat);
+            var report = reportGenerator.Generate(reportData);
+
+            return await _reportRepository.TryAdd(report, cancellationToken);
+        }
+        finally
+        {
+            ReportCreationLock.Release();
+        }
     }
 
     private static Report.ReportFormat ToDomain(GetPurchaseReportByIdRequest.ReportFormat format)
