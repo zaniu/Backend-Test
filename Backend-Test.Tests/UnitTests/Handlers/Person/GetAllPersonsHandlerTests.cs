@@ -26,7 +26,7 @@ public class GetAllPersonsHandlerTests
         var response = await handler.Handle(new GetAllPersonsRequest(), CancellationToken.None);
 
         // Assert
-        response.Persons.Should().HaveCount(2);
-        response.Persons.Should().Contain(person => person.Id == 1 && person.Firstname == "John");
+        response.Value.Should().HaveCount(2);
+        response.Value.Should().Contain(person => person.Id == 1 && person.Firstname == "John");
     }
 }

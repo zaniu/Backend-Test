@@ -7,9 +7,4 @@ public record CollectionResponse<T>(bool IsSuccess, string Message, IReadOnlyCol
         : this(true, null, value, null, null)
     {
     }
-
-    public CollectionResponse(string message, List<string> errors, string traceId = null)
-        : this(false, message, null, errors, traceId)
-    {
-    }
 }

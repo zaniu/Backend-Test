@@ -33,7 +33,7 @@ public class GetAllPurchasesHandlerTests
         var response = await handler.Handle(new GetAllPurchasesRequest(), CancellationToken.None);
 
         // Assert
-        response.Purchases.Should().HaveCount(2);
-        response.Purchases.Should().Contain(purchase => purchase.Id == 1 && purchase.CustomerId == 1);
+        response.Value.Should().HaveCount(2);
+        response.Value.Should().Contain(purchase => purchase.Id == 1 && purchase.CustomerId == 1);
     }
 }

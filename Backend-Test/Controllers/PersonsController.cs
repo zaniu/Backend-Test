@@ -21,12 +21,12 @@ public class PersonsController : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CollectionResponse<GetAllPersonsResponse.PersonItem>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetAllPersonsResponse))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleItemResponse<object>))]
-    public async Task<ActionResult<CollectionResponse<GetAllPersonsResponse.PersonItem>>> GetAll()
+    public async Task<ActionResult<GetAllPersonsResponse>> GetAll()
     {
         var response = await _mediator.Send(new GetAllPersonsRequest());
-        return Ok(new CollectionResponse<GetAllPersonsResponse.PersonItem>(response.Persons));
+        return Ok(response);
     }
 
     [HttpGet("{id:int}")]

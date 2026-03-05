@@ -26,7 +26,7 @@ public class GetAllProductsHandlerTests
         var response = await handler.Handle(new GetAllProductsRequest(), CancellationToken.None);
 
         // Assert
-        response.Products.Should().HaveCount(2);
-        response.Products.Should().Contain(product => product.Id == 1 && product.Name == "Pipe Wrench");
+        response.Value.Should().HaveCount(2);
+        response.Value.Should().Contain(product => product.Id == 1 && product.Name == "Pipe Wrench");
     }
 }
