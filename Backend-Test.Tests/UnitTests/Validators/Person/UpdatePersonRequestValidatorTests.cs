@@ -1,5 +1,4 @@
-using BackendTest.Application.Requests.Person;
-using BackendTest.Application.Validators.Person;
+using BackendTest.Application.Features.Persons.UpdatePerson;
 using FluentAssertions;
 
 namespace BackendTest.Test.UnitTests.Validators.Person;

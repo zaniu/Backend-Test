@@ -1,5 +1,8 @@
-﻿using BackendTest.Application.Requests.Product;
-using BackendTest.Application.Responses.Product;
+﻿using BackendTest.Application.Features.Products.AddProduct;
+using BackendTest.Application.Features.Products.DeleteProduct;
+using BackendTest.Application.Features.Products.GetAllProducts;
+using BackendTest.Application.Features.Products.GetProductById;
+using BackendTest.Application.Features.Products.UpdateProduct;
 using BackendTest.Contracts;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -18,12 +21,12 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CollectionResponse<GetProductByIdResponse>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CollectionResponse<GetAllProductsResponse.ProductItem>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleItemResponse<object>))]
-    public async Task<ActionResult<CollectionResponse<GetProductByIdResponse>>> GetAll()
+    public async Task<ActionResult<CollectionResponse<GetAllProductsResponse.ProductItem>>> GetAll()
     {
-        var response = await _mediator.Send(new GetAllProductsRequest());
-        return Ok(new CollectionResponse<GetProductByIdResponse>(response.Products));
+            var response = await _mediator.Send(new GetAllProductsRequest());
+            return Ok(new CollectionResponse<GetAllProductsResponse.ProductItem>(response.Products));
     }
 
     [HttpGet("{id:int}")]

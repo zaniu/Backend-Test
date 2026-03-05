@@ -1,5 +1,5 @@
 using BackendTest.Application.Behaviors;
-using BackendTest.Application.Reporting;
+using BackendTest.Application.Features.Purchases.GetPurchaseReportById.Reporting;
 using BackendTest.Application.Validators;
 using FluentValidation;
 

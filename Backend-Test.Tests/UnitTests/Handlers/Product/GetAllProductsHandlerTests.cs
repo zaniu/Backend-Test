@@ -1,6 +1,5 @@
-using BackendTest.Application.Handlers.Product;
-using BackendTest.Application.Requests.Product;
-using BackendTest.Application.Repositories;
+using BackendTest.Application.Features.Products;
+using BackendTest.Application.Features.Products.GetAllProducts;
 using FluentAssertions;
 using Moq;
 

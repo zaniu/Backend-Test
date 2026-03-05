@@ -1,6 +1,6 @@
-using BackendTest.Application.Handlers.Person;
-using BackendTest.Application.Requests.Person;
-using BackendTest.Application.Repositories;
+using BackendTest.Application.Features.Persons;
+using BackendTest.Application.Features.Persons.DeletePerson;
+using BackendTest.Application.Features.Purchases;
 using BackendTest.Exceptions;
 using FluentAssertions;
 using Moq;

@@ -1,7 +1,8 @@
 using System.Net;
-using BackendTest.Application.Requests.Product;
-using BackendTest.Application.Requests.Person;
-using BackendTest.Application.Requests.Purchase;
+using BackendTest.Application.Features.Persons.AddPerson;
+using BackendTest.Application.Features.Products.AddProduct;
+using BackendTest.Application.Features.Products.UpdateProduct;
+using BackendTest.Application.Features.Purchases.AddPurchase;
 using FluentAssertions;
 
 namespace BackendTest.Test.IntegrationTests;
@@ -144,7 +145,7 @@ public class ProductsControllerIntegrationTests : IntegrationTestBase
         using var client = CreateClient();
         await PostAsync(client, "/persons", new AddPersonRequest(1011, "Buyer", "One", 1980));
         await PostAsync(client, "/products", new AddProductRequest(2008, "Linked Product", "Test", 5m));
-        await PostAsync(client, "/purchases", new AddPurchaseRequest(3002, 1011, [new PurchaseProductItemRequest(2008, 1)]));
+        await PostAsync(client, "/purchases", new AddPurchaseRequest(3002, 1011, [new AddPurchaseRequest.PurchaseItem(2008, 1)]));
 
         // Act
         var response = await DeleteAsync(client, "/products/2008");

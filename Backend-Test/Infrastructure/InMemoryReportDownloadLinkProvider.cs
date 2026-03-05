@@ -1,5 +1,4 @@
-using BackendTest.Application.Handlers.Purchase;
-using BackendTest.Application.Repositories;
+using BackendTest.Application.Features.Purchases.GetPurchaseReportById.Reporting;
 
 namespace BackendTest.Infrastructure;
 

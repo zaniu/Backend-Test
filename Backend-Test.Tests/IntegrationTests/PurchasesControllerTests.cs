@@ -1,9 +1,9 @@
 using System.Net;
 using Microsoft.AspNetCore.Mvc.Testing;
-using BackendTest.Application.Requests.Person;
-using BackendTest.Application.Requests.Product;
-using BackendTest.Application.Requests.Purchase;
 using FluentAssertions;
+using BackendTest.Application.Features.Persons.AddPerson;
+using BackendTest.Application.Features.Purchases.AddPurchase;
+using BackendTest.Application.Features.Products.AddProduct;
 
 namespace BackendTest.Test.IntegrationTests;
 
@@ -17,8 +17,8 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
         await PostAsync(client, "/persons", new AddPersonRequest(1012, "John", "Doe", 1980));
         await PostAsync(client, "/products", new AddProductRequest(2009, "P1", "Type", 1m));
         await PostAsync(client, "/products", new AddProductRequest(2010, "P2", "Type", 2m));
-        await PostAsync(client, "/purchases", new AddPurchaseRequest(3003, 1012, [new PurchaseProductItemRequest(2009, 1)]));
-        await PostAsync(client, "/purchases", new AddPurchaseRequest(3004, 1012, [new PurchaseProductItemRequest(2010, 1)]));
+        await PostAsync(client, "/purchases", new AddPurchaseRequest(3003, 1012, [new AddPurchaseRequest.PurchaseItem(2009, 1)]));
+        await PostAsync(client, "/purchases", new AddPurchaseRequest(3004, 1012, [new AddPurchaseRequest.PurchaseItem(2010, 1)]));
 
         // Act
         var response = await GetAsync(client, "/purchases");
@@ -39,8 +39,8 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
         await PostAsync(client, "/persons", new AddPersonRequest(1013, "Jane", "Doe", 1985));
         await PostAsync(client, "/products", new AddProductRequest(2011, "P3", "Type", 3m));
         await PostAsync(client, "/products", new AddProductRequest(2012, "P4", "Type", 4m));
-        await PostAsync(client, "/purchases", new AddPurchaseRequest(3005, 1013, [new PurchaseProductItemRequest(2011, 1)]));
-        await PostAsync(client, "/purchases", new AddPurchaseRequest(3006, 1013, [new PurchaseProductItemRequest(2012, 1)]));
+        await PostAsync(client, "/purchases", new AddPurchaseRequest(3005, 1013, [new AddPurchaseRequest.PurchaseItem(2011, 1)]));
+        await PostAsync(client, "/purchases", new AddPurchaseRequest(3006, 1013, [new AddPurchaseRequest.PurchaseItem(2012, 1)]));
 
         // Act
         var response = await GetAsync(client, "/purchases/customer/1013");
@@ -79,8 +79,8 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
         await PostAsync(client, "/products", new AddProductRequest(2014, "B", "Type", 2m));
         var request = new AddPurchaseRequest(3007, 1014,
         [
-            new PurchaseProductItemRequest(2013, 1),
-            new PurchaseProductItemRequest(2014, 1)
+            new AddPurchaseRequest.PurchaseItem(2013, 1),
+            new AddPurchaseRequest.PurchaseItem(2014, 1)
         ]);
 
         // Act
@@ -108,7 +108,7 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
         // Arrange
         using var client = CreateClient();
         await PostAsync(client, "/products", new AddProductRequest(2015, "X", "Type", 1m));
-        var request = new AddPurchaseRequest(3008, 9999, [new PurchaseProductItemRequest(2015, 1)]);
+        var request = new AddPurchaseRequest(3008, 9999, [new AddPurchaseRequest.PurchaseItem(2015, 1)]);
 
         // Act
         var response = await PostAsync(client, "/purchases", request);
@@ -123,7 +123,7 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
         // Arrange
         using var client = CreateClient();
         await PostAsync(client, "/persons", new AddPersonRequest(1015, "Buyer", "Two", 1991));
-        var request = new AddPurchaseRequest(3009, 1015, [new PurchaseProductItemRequest(9999, 1)]);
+        var request = new AddPurchaseRequest(3009, 1015, [new AddPurchaseRequest.PurchaseItem(9999, 1)]);
 
         // Act
         var response = await PostAsync(client, "/purchases", request);
@@ -139,10 +139,10 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
         using var client = CreateClient();
         await PostAsync(client, "/persons", new AddPersonRequest(1016, "Buyer", "Three", 1992));
         await PostAsync(client, "/products", new AddProductRequest(2016, "Y", "Type", 1m));
-        await PostAsync(client, "/purchases", new AddPurchaseRequest(3010, 1016, [new PurchaseProductItemRequest(2016, 1)]));
+        await PostAsync(client, "/purchases", new AddPurchaseRequest(3010, 1016, [new AddPurchaseRequest.PurchaseItem(2016, 1)]));
 
         // Act
-        var response = await PostAsync(client, "/purchases", new AddPurchaseRequest(3010, 1016, [new PurchaseProductItemRequest(2016, 1)]));
+        var response = await PostAsync(client, "/purchases", new AddPurchaseRequest(3010, 1016, [new AddPurchaseRequest.PurchaseItem(2016, 1)]));
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
@@ -157,7 +157,7 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
         await PostAsync(client, "/products", new AddProductRequest(2020, "Valid Product", "Type", 1m));
 
         // Act
-        var response = await PostAsync(client, "/purchases", new AddPurchaseRequest(0, 1020, [new PurchaseProductItemRequest(2020, 1)]));
+        var response = await PostAsync(client, "/purchases", new AddPurchaseRequest(0, 1020, [new AddPurchaseRequest.PurchaseItem(2020, 1)]));
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -186,7 +186,7 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
         using var client = CreateClient();
         await PostAsync(client, "/persons", new AddPersonRequest(1017, "Buyer", "Four", 1993));
         await PostAsync(client, "/products", new AddProductRequest(2017, "Z", "Type", 1m));
-        await PostAsync(client, "/purchases", new AddPurchaseRequest(3011, 1017, [new PurchaseProductItemRequest(2017, 1)]));
+        await PostAsync(client, "/purchases", new AddPurchaseRequest(3011, 1017, [new AddPurchaseRequest.PurchaseItem(2017, 1)]));
 
         // Act
         var response = await DeleteAsync(client, "/purchases/3011");
@@ -216,8 +216,8 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
         await PostAsync(client, "/persons", new AddPersonRequest(1018, "Buyer", "Five", 1994));
         await PostAsync(client, "/products", new AddProductRequest(2018, "P", "Type", 1m));
         await PostAsync(client, "/products", new AddProductRequest(2019, "Q", "Type", 2m));
-        await PostAsync(client, "/purchases", new AddPurchaseRequest(3012, 1018, [new PurchaseProductItemRequest(2018, 1)]));
-        await PostAsync(client, "/purchases", new AddPurchaseRequest(3013, 1018, [new PurchaseProductItemRequest(2019, 1)]));
+        await PostAsync(client, "/purchases", new AddPurchaseRequest(3012, 1018, [new AddPurchaseRequest.PurchaseItem(2018, 1)]));
+        await PostAsync(client, "/purchases", new AddPurchaseRequest(3013, 1018, [new AddPurchaseRequest.PurchaseItem(2019, 1)]));
 
         // Act
         var response = await DeleteAsync(client, "/purchases/customer/1018");
@@ -269,7 +269,7 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
 
         await PostAsync(client, "/persons", new AddPersonRequest(1111, "Report", "Customer", 1990));
         await PostAsync(client, "/products", new AddProductRequest(2111, "Report Product", "Type", 7m));
-        await PostAsync(client, "/purchases", new AddPurchaseRequest(3111, 1111, [new PurchaseProductItemRequest(2111, 2)]));
+        await PostAsync(client, "/purchases", new AddPurchaseRequest(3111, 1111, [new AddPurchaseRequest.PurchaseItem(2111, 2)]));
 
         // Act
         var response = await PostAsync(client, "/purchases/3111/report");
@@ -292,7 +292,7 @@ public class PurchasesControllerIntegrationTests : IntegrationTestBase
 
         await PostAsync(client, "/persons", new AddPersonRequest(1112, "Report", "Downloader", 1991));
         await PostAsync(client, "/products", new AddProductRequest(2112, "Download Product", "Type", 9m));
-        await PostAsync(client, "/purchases", new AddPurchaseRequest(3112, 1112, [new PurchaseProductItemRequest(2112, 1)]));
+        await PostAsync(client, "/purchases", new AddPurchaseRequest(3112, 1112, [new AddPurchaseRequest.PurchaseItem(2112, 1)]));
 
         var createResponse = await PostAsync(client, "/purchases/3112/report");
         var reportUrl = createResponse.Headers.Location!.ToString();

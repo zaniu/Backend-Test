@@ -1,5 +1,8 @@
-﻿using BackendTest.Application.Requests.Person;
-using BackendTest.Application.Responses.Person;
+﻿using BackendTest.Application.Features.Persons.AddPerson;
+using BackendTest.Application.Features.Persons.DeletePerson;
+using BackendTest.Application.Features.Persons.GetAllPersons;
+using BackendTest.Application.Features.Persons.GetPersonById;
+using BackendTest.Application.Features.Persons.UpdatePerson;
 using BackendTest.Contracts;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -18,12 +21,12 @@ public class PersonsController : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CollectionResponse<GetPersonByIdResponse>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CollectionResponse<GetAllPersonsResponse.PersonItem>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleItemResponse<object>))]
-    public async Task<ActionResult<CollectionResponse<GetPersonByIdResponse>>> GetAll()
+    public async Task<ActionResult<CollectionResponse<GetAllPersonsResponse.PersonItem>>> GetAll()
     {
         var response = await _mediator.Send(new GetAllPersonsRequest());
-        return Ok(new CollectionResponse<GetPersonByIdResponse>(response.Persons));
+        return Ok(new CollectionResponse<GetAllPersonsResponse.PersonItem>(response.Persons));
     }
 
     [HttpGet("{id:int}")]

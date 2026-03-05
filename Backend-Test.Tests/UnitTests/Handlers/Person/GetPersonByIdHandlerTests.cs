@@ -1,6 +1,5 @@
-using BackendTest.Application.Handlers.Person;
-using BackendTest.Application.Requests.Person;
-using BackendTest.Application.Repositories;
+using BackendTest.Application.Features.Persons;
+using BackendTest.Application.Features.Persons.GetPersonById;
 using BackendTest.Exceptions;
 using FluentAssertions;
 using Moq;

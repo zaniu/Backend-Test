@@ -1,5 +1,10 @@
-﻿using BackendTest.Application.Requests.Purchase;
-using BackendTest.Application.Responses.Purchase;
+﻿using BackendTest.Application.Features.Purchases.AddPurchase;
+using BackendTest.Application.Features.Purchases.DeletePurchase;
+using BackendTest.Application.Features.Purchases.DeletePurchaseByCustomer;
+using BackendTest.Application.Features.Purchases.DownloadPurchaseReport;
+using BackendTest.Application.Features.Purchases.GetAllPurchases;
+using BackendTest.Application.Features.Purchases.GetPurchaseByCustomerId;
+using BackendTest.Application.Features.Purchases.GetPurchaseReportById;
 using BackendTest.Contracts;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -18,12 +23,12 @@ public class PurchasesController : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CollectionResponse<PurchaseItemResponse>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CollectionResponse<GetAllPurchasesResponse.Purchase>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(SingleItemResponse<object>))]
-    public async Task<ActionResult<CollectionResponse<PurchaseItemResponse>>> GetAll()
+    public async Task<ActionResult<CollectionResponse<GetAllPurchasesResponse.Purchase>>> GetAll()
     {
         var response = await _mediator.Send(new GetAllPurchasesRequest());
-        return Ok(new CollectionResponse<PurchaseItemResponse>(response.Purchases));
+        return Ok(new CollectionResponse<GetAllPurchasesResponse.Purchase>(response.Purchases));
     }
 
     [HttpGet("customer/{customerId:int}")]

@@ -1,10 +1,9 @@
-using BackendTest.Application.Handlers.Purchase;
-using BackendTest.Application.Repositories;
-using BackendTest.Application.Reporting;
-using BackendTest.Application.Requests.Purchase;
 using BackendTest.Model;
 using FluentAssertions;
 using Moq;
+using BackendTest.Application.Features.Purchases;
+using BackendTest.Application.Features.Purchases.GetPurchaseReportById.Reporting;
+using BackendTest.Application.Features.Purchases.GetPurchaseReportById;
 
 namespace BackendTest.Test.UnitTests.Handlers.Purchase;
 

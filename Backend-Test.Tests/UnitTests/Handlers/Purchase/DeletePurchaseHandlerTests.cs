@@ -1,6 +1,5 @@
-using BackendTest.Application.Handlers.Purchase;
-using BackendTest.Application.Requests.Purchase;
-using BackendTest.Application.Repositories;
+using BackendTest.Application.Features.Purchases;
+using BackendTest.Application.Features.Purchases.DeletePurchase;
 using BackendTest.Exceptions;
 using FluentAssertions;
 using Moq;
